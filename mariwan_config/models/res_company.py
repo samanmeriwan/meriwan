@@ -286,6 +286,13 @@ class ResCompany(models.Model):
         currencies.active = True
         if 'currency_interval_unit' in self._fields:
             self.currency_interval_unit = 'daily'
+        if hasattr(self, 'update_currency_rates'):
+            # Load today's CBUAE rates now instead of waiting for the daily job.
+            try:
+                with self.env.cr.savepoint():
+                    self.update_currency_rates()
+            except Exception:  # noqa: BLE001 - offline install must not fail
+                _logger.warning("Could not fetch currency rates now; the daily update will retry.", exc_info=True)
 
     def _mariwan_setup_reconcile_models(self):
         """Task 2.9: Bank Fees / Internal Transfers models are Odoo defaults; add the advance ones."""
