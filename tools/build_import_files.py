@@ -209,7 +209,8 @@ def build_client_files(items_path, out, cost_currency):
         ])
         for price, rows, label in ((uae, uae_rows, 'UAE'), (gcc, gcc_rows, 'GCC')):
             if price:
-                rows.append([f'{"UAE Market" if label == "UAE" else "GCC Market"}', 'Product', item['sku'],
+                rows.append([f'pricelist_{label.lower()}_{_xmlid(item["sku"])[8:]}',
+                             f'{"UAE Market" if label == "UAE" else "GCC Market"}', 'Product', item['sku'],
                              'Fixed Price', price])
         missing = [label for label, value in (('cost', cost), ('GCC price', gcc), ('UAE price', uae)) if not value]
         if missing:
@@ -217,6 +218,7 @@ def build_client_files(items_path, out, cost_currency):
 
     _write_template(os.path.join(out, 'client_products_import.xlsx'), TEMPLATES['products'], products)
     pricelist_columns = [
+        ('id', 'Unique external ID (re-import updates the price)', True, None, 'pricelist_uae_16_1184'),
         ('pricelist_id', 'Price list', True, ['UAE Market', 'GCC Market'], 'UAE Market'),
         ('applied_on', 'Apply on', True, ['Product'], 'Product'),
         ('product_tmpl_id', 'Product (internal reference)', True, None, '16-1184'),
