@@ -7,9 +7,11 @@ import traceback
 import xmlrpc.client
 from datetime import date, timedelta
 
-URL, DB = 'http://127.0.0.1:8078', 'meriwan'
-USERS = {u: f'{u}123' for u in ('saman', 'warehouse', 'accountant', 'finance', 'pricing', 'manager')}
-USERS['admin'] = 'admin'
+import os
+URL = os.environ.get('MARIWAN_URL', 'http://127.0.0.1:8078')
+DB = os.environ.get('MARIWAN_DB', 'meriwan')
+USERS = {u: os.environ.get('MARIWAN_TEST_PW', f'{u}123') for u in ('saman', 'warehouse', 'accountant', 'finance', 'pricing', 'manager')}
+USERS['admin'] = os.environ.get('MARIWAN_ADMIN_PW', 'admin')
 common = xmlrpc.client.ServerProxy(URL + '/xmlrpc/2/common')
 obj = xmlrpc.client.ServerProxy(URL + '/xmlrpc/2/object', allow_none=True)
 UID = {u: common.authenticate(DB, u, p, {}) for u, p in USERS.items()}

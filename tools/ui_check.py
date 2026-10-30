@@ -3,7 +3,9 @@
 
 Replay the web client calls (get_views / onchange / web_save / web_read / buttons) per role."""
 import json, urllib.request, http.cookiejar
-URL, DB = 'http://127.0.0.1:8078', 'meriwan'
+import os
+URL = os.environ.get('MARIWAN_URL', 'http://127.0.0.1:8078')
+DB = os.environ.get('MARIWAN_DB', 'meriwan')
 RESULTS = []
 
 class Session:
@@ -39,8 +41,8 @@ def open_form(s, model, view_types=(('list', False), ('form', False), ('search',
     v = s.call(model, 'get_views', [list(view_types)], options={'toolbar': True, 'load_filters': True})
     return v
 
-admin = Session('admin', 'admin')
-roles = {u: Session(u, u + '123') for u in ('saman', 'warehouse', 'accountant', 'finance', 'pricing', 'manager')}
+admin = Session('admin', os.environ.get('MARIWAN_ADMIN_PW', 'admin'))
+roles = {u: Session(u, os.environ.get('MARIWAN_TEST_PW', u + '123')) for u in ('saman', 'warehouse', 'accountant', 'finance', 'pricing', 'manager')}
 roles['admin'] = admin
 
 # 1. Every Mariwan view loads for every role, and the list/kanban/pivot data loads
