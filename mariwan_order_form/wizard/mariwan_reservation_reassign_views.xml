@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mariwan_reservation_reassign_form" model="ir.ui.view">
+        <field name="name">mariwan.reservation.reassign.form</field>
+        <field name="model">mariwan.reservation.reassign</field>
+        <field name="arch" type="xml">
+            <form string="Re-assign Reservation">
+                <group>
+                    <field name="reservation_id" readonly="1"/>
+                    <field name="product_id"/>
+                    <field name="source_line_id" invisible="1"/>
+                    <field name="quantity"/>
+                    <field name="target_line_id" options="{'no_create': True}"/>
+                    <field name="reason"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Re-assign" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

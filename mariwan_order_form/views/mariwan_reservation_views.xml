@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mariwan_reservation_list" model="ir.ui.view">
+        <field name="name">mariwan.reservation.list</field>
+        <field name="model">mariwan.reservation</field>
+        <field name="arch" type="xml">
+            <list string="Reservations" create="false" decoration-muted="state != 'active'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="order_form_id"/>
+                <field name="sale_order_id" optional="show"/>
+                <field name="product_id"/>
+                <field name="warehouse_id" optional="hide"/>
+                <field name="quantity" sum="Total"/>
+                <field name="product_uom_id"/>
+                <field name="delivery_date"/>
+                <field name="hold_until" decoration-danger="state == 'active' and hold_until &lt; context_today().strftime('%Y-%m-%d')"/>
+                <field name="reserved_on"/>
+                <field name="reserved_by"/>
+                <field name="user_id" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'active'"/>
+                <button name="action_reassign" type="object" icon="fa-exchange" title="Re-assign"
+                        groups="mariwan_order_form.group_sales_manager" invisible="state != 'active'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mariwan_reservation_form" model="ir.ui.view">
+        <field name="name">mariwan.reservation.form</field>
+        <field name="model">mariwan.reservation</field>
+        <field name="arch" type="xml">
+            <form string="Reservation" create="false" edit="false">
+                <header>
+                    <button name="action_release" string="Release" type="object" invisible="state != 'active'"
+                            groups="mariwan_order_form.group_officer" confirm="Release this reservation?"/>
+                    <button name="action_reassign" string="Re-assign" type="object" invisible="state != 'active'"
+                            groups="mariwan_order_form.group_sales_manager"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <h1><field name="name"/></h1>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="order_form_id"/>
+                            <field name="sale_order_id"/>
+                            <field name="product_id"/>
+                            <field name="quantity"/>
+                            <field name="product_uom_id"/>
+                        </group>
+                        <group>
+                            <field name="warehouse_id"/>
+                            <field name="delivery_date"/>
+                            <field name="hold_until"/>
+                            <field name="reserved_by"/>
+                            <field name="reserved_on"/>
+                            <field name="released_by" invisible="state != 'released'"/>
+                            <field name="released_on" invisible="state != 'released'"/>
+                            <field name="release_reason" invisible="state != 'released'"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_mariwan_reservation_search" model="ir.ui.view">
+        <field name="name">mariwan.reservation.search</field>
+        <field name="model">mariwan.reservation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id"/>
+                <field name="partner_id"/>
+                <field name="order_form_id"/>
+                <filter name="active_res" string="Reserved" domain="[('state', '=', 'active')]"/>
+                <filter name="expired" string="Past Hold-Until"
+                        domain="[('state', '=', 'active'), ('hold_until', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="released" string="Released" domain="[('state', '=', 'released')]"/>
+                <group>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_mariwan_reservation_pivot" model="ir.ui.view">
+        <field name="name">mariwan.reservation.pivot</field>
+        <field name="model">mariwan.reservation</field>
+        <field name="arch" type="xml">
+            <pivot string="Reservations">
+                <field name="product_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="quantity" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_mariwan_reservation" model="ir.actions.act_window">
+        <field name="name">Reservations</field>
+        <field name="res_model">mariwan.reservation</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="context">{'search_default_active_res': 1}</field>
+    </record>
+</odoo>

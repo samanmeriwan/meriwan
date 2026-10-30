@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Task 12.11: landed cost sheet -->
+    <template id="report_landed_cost_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h2>Landed Cost Sheet <span t-field="o.name"/></h2>
+                <div class="row mb-4">
+                    <div class="col"><strong>Date</strong><div t-field="o.date"/></div>
+                    <div class="col"><strong>Receipts</strong><div t-out="', '.join(o.picking_ids.mapped('name'))"/></div>
+                    <div class="col"><strong>Vendors</strong><div t-out="', '.join(o.picking_ids.partner_id.mapped('name'))"/></div>
+                    <div class="col" t-if="o.vendor_bill_id"><strong>Bill</strong><div t-field="o.vendor_bill_id.name"/></div>
+                    <div class="col"><strong>Status</strong><div t-field="o.state"/></div>
+                </div>
+                <h5>Cost lines</h5>
+                <table class="table table-sm o_main_table">
+                    <thead><tr>
+                        <th class="text-start">Type</th>
+                        <th class="text-start">Description</th>
+                        <th class="text-start">Allocation</th>
+                        <th class="text-end">Amount</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr t-foreach="o.cost_lines" t-as="cl">
+                            <td><span t-field="cl.product_id.name"/></td>
+                            <td><span t-field="cl.name"/></td>
+                            <td><span t-field="cl.split_method"/></td>
+                            <td class="text-end"><span t-field="cl.price_unit"/></td>
+                        </tr>
+                        <tr class="border-black o_total"><td colspan="3"><strong>Total landed cost</strong></td>
+                            <td class="text-end"><span t-field="o.amount_total"/></td></tr>
+                    </tbody>
+                </table>
+                <h5>Allocation per product</h5>
+                <table class="table table-sm o_main_table">
+                    <thead><tr>
+                        <th class="text-start">Product</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Original Value</th>
+                        <th class="text-end">Landed Cost</th>
+                        <th class="text-end">New Value</th>
+                        <th class="text-end">New Unit Cost</th>
+                    </tr></thead>
+                    <tbody>
+                        <t t-foreach="o.valuation_adjustment_lines.mapped('product_id')" t-as="product">
+                            <t t-set="adj" t-value="o.valuation_adjustment_lines.filtered(lambda a: a.product_id == product)"/>
+                            <t t-set="qty" t-value="sum(adj.mapped('move_id').mapped('quantity'))"/>
+                            <t t-set="former" t-value="sum(adj.mapped('move_id').mapped(lambda m: m._get_value()))"/>
+                            <t t-set="landed" t-value="sum(adj.mapped('additional_landed_cost'))"/>
+                            <tr>
+                                <td><span t-field="product.display_name"/></td>
+                                <td class="text-end"><span t-out="qty" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-end"><span t-out="former" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                <td class="text-end"><span t-out="landed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                <td class="text-end"><span t-out="former + landed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                <td class="text-end"><span t-out="(former + landed) / qty if qty else 0" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <div class="row mt-5">
+                    <div class="col-4"><strong>Prepared by</strong><div class="mt-5 border-top">Name / Date</div></div>
+                    <div class="col-4"><strong>Approved by</strong><div class="mt-5 border-top">Name / Date</div></div>
+                    <div class="col-4"><strong>Posted</strong><div class="mt-5 border-top" t-field="o.account_move_id.name"/></div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="report_landed_cost">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="mariwan_reports.report_landed_cost_document"/>
+            </t>
+        </t>
+    </template>
+    <record id="action_report_landed_cost" model="ir.actions.report">
+        <field name="name">Landed Cost Sheet</field>
+        <field name="model">stock.landed.cost</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mariwan_reports.report_landed_cost</field>
+        <field name="print_report_name">'Landed Cost - %s' % object.name</field>
+        <field name="binding_model_id" ref="stock_landed_costs.model_stock_landed_cost"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

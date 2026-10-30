@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Task 6.6: daily alert list - no silent release -->
+    <record id="ir_cron_reservation_alerts" model="ir.cron">
+        <field name="name">Mariwan: reservation expiry and overdue delivery alerts</field>
+        <field name="model_id" ref="model_mariwan_reservation"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_alerts()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+    <record id="ir_cron_order_form_progress" model="ir.cron">
+        <field name="name">Mariwan: update Order Form delivery / closing status</field>
+        <field name="model_id" ref="model_mariwan_order_form"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_update_progress()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+    </record>
+</odoo>

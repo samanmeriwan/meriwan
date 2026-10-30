@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tasks 4.2 / 4.3: credit limit, payment terms, addresses, bank accounts, vendor
+         currency and price lists are standard; only customer / vendor type are added. -->
+    <record id="view_partner_form_mariwan" model="ir.ui.view">
+        <field name="name">res.partner.form.mariwan</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='sale']" position="inside">
+                <field name="mariwan_customer_type"/>
+                <field name="mariwan_region"/>
+                <field name="mariwan_trade_licence"/>
+            </xpath>
+            <xpath expr="//group[@name='purchase']" position="inside">
+                <field name="mariwan_vendor_type"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

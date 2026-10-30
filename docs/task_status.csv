@@ -1,0 +1,122 @@
+ID,Task,Status,Remarks
+1.1,Create project workspace and baseline documents,In Progress,Repo structure + task tracker in place; decision/issue log docs still to write
+1.2,Provision Odoo test and production databases,In Progress,Local test DB ready (Odoo 20); Odoo.sh staging/production pending version confirmation
+1.3,Set up source control and module scaffold for the custom module,Completed,"Modules mariwan_config, mariwan_order_form, mariwan_reports; config re-applicable from Settings > Technical > Mariwan"
+2.1,Create and configure the UAE company,In Progress,"UAE, AED, Asia/Dubai, fiscal year Jan-Dec done; address, logo, website needed from client"
+2.2,Activate required Odoo apps and features,Completed,"Accounting, Inventory, Sales, Purchase, Contacts, Landed Costs, Drop Ship, Approvals + multi-currency, perpetual AVCO"
+2.3,Configure No VAT / no tax,Completed,"No taxes, no tax defaults, no TRN; tested (no tax on SO/invoice)"
+2.4,Configure chart of accounts,Completed,"Client chart of accounts applied on Odoo default chart + Landed Cost Clearing, Customer Advances"
+2.5,Configure journals,Completed,"INV, BILL, Bank AED, Bank USD, Cash, Petty Cash, Inventory Valuation, Landed Cost, Misc (Odoo standard numbering)"
+2.6,Configure payment terms and methods,Completed,"Immediate/7/15/30/45/60 days, Advance 50% + balance; Bank Transfer, Cheque, Card methods"
+2.7,Configure customer credit control,Completed,Standard credit limit made blocking on confirmation; Finance Manager override button; tested
+2.8,Configure multi-currency purchasing,Completed,"USD/EUR/CNY/GBP/INR/SAR active, daily CBUAE rates, exchange gain/loss accounts; AED equivalent on Order Form and PO"
+2.9,"Configure bank, cash and reconciliation",Completed,"Bank/cash journals, standard statement import, reconciliation models"
+2.10,Configure advance payments (customer and vendor),Completed,Standard down payments (Customer Advances account) and vendor down payments on PO
+2.11,Configure period lock and month-end controls,In Progress,Standard lock dates (Finance Manager); month-end checklist document pending
+3.1,Configure warehouse(s) and locations,Completed,"Mariwan UAE Warehouse (MRW): Stock, Receiving, Quality Hold, Damaged, Scrap; drop-ship virtual flow"
+3.2,Configure routes and operation types,Completed,"Receipts/Deliveries/Returns standard, Drop Ship route active, MTO off, reserve at confirmation"
+3.3,Configure product categories and valuation,Completed,"Client categories (Brake Pads, Rotors, ...) with AVCO + perpetual valuation from company defaults"
+3.4,Configure units of measure and packaging,Completed,"Units, Pieces, Carton, Pallet, Container (+ standard kg, m)"
+3.5,Configure lot and serial tracking,Completed,Lots/serials and expiry enabled; set per product on import
+3.6,Configure reservation behaviour and low-stock visibility,Completed,"Reservations exclude stock from other customers (tested); minimum stock alert only, no auto PO"
+3.7,Configure physical inventory and adjustments,In Progress,Standard physical inventory; adjustment approval via Approvals category; adjustment reasons not added
+4.1,Design and configure the Product form,Completed,"Brand, Model, Default Fulfilment, Min stock added; HS code/origin/weight/vendors standard"
+4.2,Design and configure the Customer form,Completed,"Customer type, region, trade licence added; credit limit, terms, addresses, balance standard"
+4.3,Design and configure the Vendor form,Completed,"Vendor type added; currency, terms, bank, vendor price list standard"
+4.4,Prepare import templates for master data,Completed,"Import templates with instructions, dropdowns and duplicate/missing checks (docs/data_load/templates)"
+5.1,Build the Order Form header (form view),Completed,"Header, availability indicator, totals, smart buttons"
+5.2,Build the Order Form product lines,Completed,Line fields per sheet; cost fields hidden without cost access
+5.3,Build the real-time availability check,Completed,Real-time on hand / reserved / free / incoming; tested
+5.4,Build the shortage flag and reservation-details popup,Completed,Shortage flag popup with reservations and incoming POs
+5.5,Build the reservation function,Completed,"Reserve all / line, release, date required, locked to customer; tested"
+5.6,Build fulfilment type handling per line,Completed,From Stock / Import / Drop Ship per line; order type auto (Stock/Import/Drop Ship/Mixed)
+5.7,Build the vendor and cost block on the line,Completed,"Vendor, currency, rate, AED cost, estimated then actual landed cost"
+5.8,Build the selling price calculation on the Order Form,Completed,"Price from customer pricelist: client fixed UAE/GCC price per item, else cost + margin %"
+5.9,Build the Order Form status flow and buttons,Completed,Status flow Draft > Checked > Reserved/Awaiting > Quoted > Confirmed > In Delivery > Delivered > Closed / Cancelled
+5.10,Build the manual PO creation from the Order Form,Completed,"Draft RFQ for import shortage, never auto-confirmed; drop ship uses standard RFQ from SO"
+5.11,"Build the link to quotation, sales order and invoice",Completed,Quotation/SO/invoice/delivery linked both ways
+5.12,"Build Order Form search, filters, list and kanban views",Completed,"List, kanban, pivot, graph; filters and group-bys per sheet"
+5.13,Build Order Form access rights and audit trail,Completed,"7 roles + cost access group; chatter log of reservations, releases, overrides, cancellation"
+6.1,Implement the stock-sale process,Completed,Tested end to end (reserve > quote > confirm > invoice > pay > deliver > closed)
+6.2,Implement the import-for-stock process (shortage),Completed,Tested: PO > receipt auto-reserves for waiting customer > landed cost updates cost/price
+6.3,Implement the drop-shipping process,Completed,"Tested: standard drop ship RFQ with customer address, dispatch/tracking, delivery, no stock entry"
+6.4,Implement the cash and credit payment rules,Completed,Cash: delivery blocked until paid (full or advance %); credit: limit + overdue block; tested
+6.5,Implement reservation conflict rules,Completed,Re-assign only by Sales Manager with reason; original form flagged; release on cancel; tested
+6.6,Implement reservation expiry and tentative date alerts,Completed,"Hold-until = date + grace days; daily alert activities, no silent release; tested"
+6.7,Implement validation rules and error messages,Completed,Validation messages per sheet
+6.8,Implement partial fulfilment and split handling,Completed,"Partial reservation + PO for shortage, backorders, mixed orders"
+6.9,"Implement cancellation, return and credit note handling",Completed,Cancel releases/cancels/notifies; returns and credit notes are standard Odoo
+7.1,Configure the manual purchase order flow,Completed,"No automatic POs (no Buy route by default, MTO off); Order Form link and delivery type on PO"
+7.2,Configure import PO details,Completed,"Container, port, ETA, shipping company, B/L; vendor down payment standard"
+7.3,Configure drop-ship PO details,Completed,Standard drop-ship PO with customer address; dispatch date/tracking on vendor shipment
+7.4,Configure purchase approval,Completed,Standard PO approval (every PO) with approver activity
+7.5,Configure goods receipt and vendor bill,Completed,Standard receipt and bill matching; landed cost from forwarder bills
+8.1,Configure landed cost types and accounts,Completed,7 landed cost types posting to Landed Cost Clearing
+8.2,Build the landed cost form,Completed,Standard landed cost form (value/qty/weight/volume/equal) + landed cost sheet print
+8.3,Configure landed cost on received stock,Completed,Tested: Dr Stock Valuation / Cr Landed Cost Clearing; new cost flows to Order Form
+8.4,Configure landed cost for drop-ship orders,Completed,Drop-ship delivery costs per line included in cost and margin
+8.5,Configure estimated vs actual landed cost,Completed,"Estimate % per category, actual after validation, estimate vs actual report"
+9.1,Configure fixed-percentage pricing,Completed,"UAE Market and GCC Market pricelists with the client fixed price per item (1,222 / 1,221 items)"
+9.2,Configure price override control,Completed,"Only Pricing Manager, reason required, logged; override report"
+9.3,Configure customer-specific and drop-ship pricing,Completed,Customer-specific price via partner pricelist (standard)
+10.1,Configure the quotation and sales order,Completed,"Quotation from Order Form with tentative date, terms, no tax"
+10.2,Configure invoicing before delivery,Completed,"Invoice first for cash customers, delivery blocked until paid; tested"
+10.3,Configure payment registration and reconciliation,Completed,Standard payment registration and reconciliation
+10.4,Configure the stock delivery process,Completed,"Standard delivery with signature, backorders; receiver name and remarks added"
+10.5,Configure the drop-ship delivery confirmation,Completed,Dispatch date + tracking + validation; Order Form moves to Delivered; tested
+10.6,Configure credit notes and returns,Completed,"Standard credit notes and returns, linked to Order Form"
+10.7,Configure customer statements and ageing,Completed,"Standard follow-up statements, aged receivable and reminders"
+11.1,"Configure approvals for vendor bills, payments, credit notes and journal entries",In Progress,Approval categories created (Approvals app); posting is not blocked automatically - confirm if required
+11.2,Configure approvals for stock adjustments and landed cost,In Progress,Approval categories created for stock adjustment and landed cost; not blocking posting
+11.3,Prepare the approval matrix configuration (if required),Completed,Level-2 approval category prepared and archived until required
+12.1,Define the common document layout,Completed,"Standard company layout on A4, amount in words, no tax"
+12.2,Design the Order Form print layout,Completed,Order Form print
+12.3,Design the reservation confirmation,Completed,Reservation confirmation print + email
+12.4,Design the quotation template,Completed,"Quotation: Order Form ref, payment, delivery/reservation per line"
+12.5,Design the sales order / order confirmation template,Completed,Sales order with advance received
+12.6,Design the invoice template,Completed,"Invoice: Order Form ref, cash/credit, amount in words"
+12.7,Design the delivery note template,Completed,"Delivery note: receiver, signature, stamp, remarks"
+12.8,Design the drop-ship delivery note / vendor instruction,Completed,Drop-ship vendor instruction print + email
+12.9,Design the purchase order template,Completed,"PO: shipment info, AED equivalent, drop-ship address, signature"
+12.10,Design the payment receipt and customer statement templates,Completed,Standard payment receipt and follow-up statement
+12.11,Design the landed cost sheet printout,Completed,Landed cost sheet with approval box
+12.12,Design email templates,Completed,Reservation and drop-ship templates added; others standard
+12.13,Build the templates in Odoo and test,In Progress,Templates installed; print review with real samples pending
+13.1,Create roles and security groups,Completed,"Roles: Officer, Warehouse, Accountant, Finance Manager, Pricing Manager, Sales Manager, Administrator"
+13.2,Create user accounts,In Progress,Test users per role created locally; real user list needed
+13.3,Apply segregation of duties,Completed,"Warehouse no cost/posting, Finance Manager only for lock dates and credit override"
+13.4,Configure password and login security,Not Started,Standard 2FA and password policy to configure
+14.1,Build the Order Form / sales dashboard,In Progress,Order Form pivot/graph/filters and reports; KPI dashboard page not built
+14.2,Build the inventory dashboard,Completed,Standard Inventory dashboard + below-minimum filter
+14.3,Build the purchase and import dashboard,Completed,Standard Purchase dashboard + landed cost variance report
+14.4,Build the accounting dashboard,Completed,Standard Accounting dashboards
+14.5,Build the management dashboard,In Progress,Standard Sales/Accounting dashboards; dedicated management page not built
+14.6,Configure standard reports,Completed,"Standard financial reports + margin, reservation, drop-ship, override reports"
+15.1,Load master data from the import templates,In Progress,"Client products (1,236), vendors and UAE/GCC prices import files built and loaded on test; 17 items missing cost/price; customers pending"
+15.2,Load opening balances,Not Started,Waiting for opening balances from client
+15.3,Load opening stock,Not Started,Waiting for opening stock from client
+15.4,Reconcile opening data,Not Started,
+16.1,Prepare the test plan and test data,In Progress,13 automated tests covering flows A-E
+16.2,"Test Order Form fields, availability and shortage flag",Completed,Automated tests pass
+16.3,Test reservation and conflict rules,Completed,Automated tests pass
+16.4,Test import and landed cost flow,Completed,Automated tests pass
+16.5,Test the drop-ship flow,Completed,Automated tests pass
+16.6,Test the quote-to-cash flow for cash and credit customers,Completed,Automated tests pass
+16.7,Test No VAT behaviour,Completed,Automated tests pass
+16.8,Test pricing,Completed,Automated tests pass
+16.9,"Test templates, approvals, roles, dashboards and reports",In Progress,Roles tested; print/email review pending
+16.10,Fix defects and run final regression test,In Progress,
+17.1,Prepare training material and user guides,Not Started,
+17.2,"Session 1 (online): Order Form, quotation and sales",Not Started,
+17.3,"Session 2 (online): purchasing, import and drop shipping",Not Started,
+17.4,Session 3 (online): inventory and accounting,Not Started,
+17.5,"Session 4 (online): dashboards, reports, security and administration",Not Started,
+17.6,Share recordings and final guides,Not Started,
+18.1,Go-live readiness checklist,Not Started,
+18.2,Deploy to production,Not Started,
+18.3,Validate production data,Not Started,
+18.4,Activate users and go live,Not Started,
+19.1,Stabilisation support,Not Started,
+19.2,Support the first month-end close,Not Started,
+19.3,Minor adjustments and user guidance,Not Started,
+19.4,Handover and closure,Not Started,

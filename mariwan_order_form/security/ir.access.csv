@@ -1,0 +1,14 @@
+id,name,model_id,group_id/id,operation,domain
+access_order_form_user,Order Form: internal users read,mariwan.order.form,base.group_user,r,
+access_order_form_officer,Order Form: officer creates and reads,mariwan.order.form,group_officer,cr,
+access_order_form_officer_own,Order Form: officer edits and deletes own,mariwan.order.form,group_officer,ud,"['|', ('user_id', '=', user.id), ('create_uid', '=', user.id)]"
+access_order_form_manager,Order Form: managers all,mariwan.order.form,group_sales_manager,crud,
+access_order_form_company,Order Form: multi-company,mariwan.order.form,,crud,"[('company_id', 'in', company_ids)]"
+access_order_form_line_user,Order Form Line: internal users read,mariwan.order.form.line,base.group_user,r,
+access_order_form_line_officer,Order Form Line: officer,mariwan.order.form.line,group_officer,crud,
+access_order_form_line_pricing,Order Form Line: pricing manager,mariwan.order.form.line,group_pricing_manager,ru,
+access_reservation_user,Reservation: internal users read,mariwan.reservation,base.group_user,r,
+access_reservation_officer,Reservation: officer,mariwan.reservation,group_officer,cru,
+access_reservation_admin,Reservation: administrator,mariwan.reservation,group_admin,crud,
+access_availability_popup_user,Availability popup,mariwan.availability.popup,base.group_user,crud,
+access_reservation_reassign_manager,Reservation re-assign,mariwan.reservation.reassign,group_sales_manager,crud,

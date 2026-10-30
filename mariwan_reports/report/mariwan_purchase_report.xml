@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Task 12.8: drop-ship delivery instruction to the vendor; no Mariwan cost shown -->
+    <template id="report_dropship_instruction_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+            <t t-set="address">
+                <div t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True}'/>
+            </t>
+            <div class="page">
+                <h2>Drop-Ship Delivery Instruction</h2>
+                <div class="row mb-4">
+                    <div class="col"><strong>PO Number</strong><div t-field="o.name"/></div>
+                    <div class="col" t-if="o.partner_ref"><strong>Your Reference</strong><div t-field="o.partner_ref"/></div>
+                    <div class="col" t-if="o.date_planned"><strong>Delivery Date</strong>
+                        <div t-field="o.date_planned" t-options="{'widget': 'date'}"/></div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <strong>Deliver to</strong>
+                        <div t-field="o.dest_address_id"
+                             t-options='{"widget": "contact", "fields": ["address", "name", "phone", "mobile"], "no_marker": True}'/>
+                    </div>
+                    <div class="col-6" t-if="o.dest_address_id.commercial_partner_id != o.dest_address_id">
+                        <strong>Customer</strong>
+                        <div t-field="o.dest_address_id.commercial_partner_id.name"/>
+                    </div>
+                </div>
+                <table class="table table-sm o_main_table">
+                    <thead><tr>
+                        <th class="text-start">Item</th>
+                        <th class="text-start">Description</th>
+                        <th class="text-end">Qty</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr t-foreach="o.order_line.filtered(lambda l: not l.display_type)" t-as="line">
+                            <td><span t-field="line.product_id.default_code"/></td>
+                            <td><span t-field="line.name"/></td>
+                            <td class="text-end"><span t-field="line.product_qty"/> <span t-field="line.uom_id" groups="uom.group_uom"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p t-if="o.note"><strong>Packing remarks: </strong><span t-field="o.note"/></p>
+                <p>Ship unbranded or with the customer's name as agreed. Do not include any price or invoice
+                    from <span t-field="o.company_id.name"/> in the parcel. Send the dispatch date, tracking number
+                    and proof of delivery to <span t-field="o.user_id.email"/>.</p>
+            </div>
+        </t>
+    </template>
+    <template id="report_dropship_instruction">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="mariwan_reports.report_dropship_instruction_document" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+    <record id="action_report_dropship_instruction" model="ir.actions.report">
+        <field name="name">Drop-Ship Instruction</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mariwan_reports.report_dropship_instruction</field>
+        <field name="print_report_name">'Drop-Ship Instruction - %s' % object.name</field>
+        <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

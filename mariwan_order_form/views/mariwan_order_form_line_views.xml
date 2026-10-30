@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Phase 14 reporting on Order Form lines: margin by product / customer / order type,
+         drop-ship report, price override report (9.2), landed cost estimate vs actual (8.5). -->
+    <record id="view_mariwan_order_form_line_list" model="ir.ui.view">
+        <field name="name">mariwan.order.form.line.list</field>
+        <field name="model">mariwan.order.form.line</field>
+        <field name="arch" type="xml">
+            <list string="Order Form Lines" create="false" edit="false">
+                <field name="order_form_id"/>
+                <field name="partner_id"/>
+                <field name="user_id" optional="hide"/>
+                <field name="product_id"/>
+                <field name="categ_id" optional="hide"/>
+                <field name="fulfilment_type"/>
+                <field name="product_qty"/>
+                <field name="reserved_qty" optional="show"/>
+                <field name="vendor_id" optional="show"/>
+                <field name="estimated_landed_cost_unit" optional="hide" groups="mariwan_order_form.group_cost_access"/>
+                <field name="actual_landed_cost_unit" optional="hide" groups="mariwan_order_form.group_cost_access"/>
+                <field name="total_unit_cost" optional="show" groups="mariwan_order_form.group_cost_access"/>
+                <field name="margin_percent" optional="show" groups="mariwan_order_form.group_cost_access"/>
+                <field name="is_price_overridden" optional="hide"/>
+                <field name="override_reason" optional="hide"/>
+                <field name="price_unit"/>
+                <field name="price_subtotal" sum="Total"/>
+                <field name="margin_amount" sum="Margin" groups="mariwan_order_form.group_cost_access"/>
+                <field name="form_state" widget="badge"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mariwan_order_form_line_search" model="ir.ui.view">
+        <field name="name">mariwan.order.form.line.search</field>
+        <field name="model">mariwan.order.form.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id"/>
+                <field name="partner_id"/>
+                <field name="order_form_id"/>
+                <field name="vendor_id"/>
+                <filter name="dropship" string="Drop Ship" domain="[('fulfilment_type', '=', 'dropship')]"/>
+                <filter name="import" string="Import" domain="[('fulfilment_type', '=', 'import')]"/>
+                <filter name="stock" string="From Stock" domain="[('fulfilment_type', '=', 'stock')]"/>
+                <separator/>
+                <filter name="shortage" string="Shortage" domain="[('availability_status', 'in', ('partial', 'not_available'))]"/>
+                <filter name="overridden" string="Price Overrides" domain="[('is_price_overridden', '=', True)]"/>
+                <filter name="actual_lc" string="Actual Landed Cost" domain="[('landed_cost_is_actual', '=', True)]"/>
+                <separator/>
+                <filter name="not_cancel" string="Not Cancelled" domain="[('form_state', '!=', 'cancel')]"/>
+                <group>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_type" string="Fulfilment Type" context="{'group_by': 'fulfilment_type'}"/>
+                    <filter name="group_category" string="Category" context="{'group_by': 'categ_id'}"/>
+                    <filter name="group_vendor" string="Vendor" context="{'group_by': 'vendor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_mariwan_order_form_line_pivot" model="ir.ui.view">
+        <field name="name">mariwan.order.form.line.pivot</field>
+        <field name="model">mariwan.order.form.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Order Form Analysis">
+                <field name="fulfilment_type" type="row"/>
+                <field name="price_subtotal" type="measure"/>
+                <field name="cost_subtotal" type="measure"/>
+                <field name="margin_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_mariwan_order_form_line_graph" model="ir.ui.view">
+        <field name="name">mariwan.order.form.line.graph</field>
+        <field name="model">mariwan.order.form.line</field>
+        <field name="arch" type="xml">
+            <graph string="Margin" type="bar">
+                <field name="fulfilment_type"/>
+                <field name="margin_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_mariwan_order_form_line_analysis" model="ir.actions.act_window">
+        <field name="name">Margin Analysis</field>
+        <field name="res_model">mariwan.order.form.line</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="context">{'search_default_not_cancel': 1}</field>
+    </record>
+    <record id="action_mariwan_dropship_report" model="ir.actions.act_window">
+        <field name="name">Drop-Ship Report</field>
+        <field name="res_model">mariwan.order.form.line</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="context">{'search_default_dropship': 1, 'search_default_not_cancel': 1}</field>
+    </record>
+    <record id="action_mariwan_override_report" model="ir.actions.act_window">
+        <field name="name">Price Overrides</field>
+        <field name="res_model">mariwan.order.form.line</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="context">{'search_default_overridden': 1, 'search_default_group_customer': 1}</field>
+    </record>
+    <record id="action_mariwan_landed_variance" model="ir.actions.act_window">
+        <field name="name">Landed Cost: Estimate vs Actual</field>
+        <field name="res_model">mariwan.order.form.line</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="context">{'search_default_actual_lc': 1}</field>
+    </record>
+</odoo>

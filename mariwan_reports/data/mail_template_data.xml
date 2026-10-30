@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Task 12.12: quotation, invoice, payment reminder (follow-ups), delivery and
+         PO-to-vendor emails are standard Odoo templates; these two are added. -->
+    <record id="mail_template_reservation_confirmation" model="mail.template">
+        <field name="name">Order Form: Reservation Confirmation</field>
+        <field name="model_id" ref="mariwan_order_form.model_mariwan_order_form"/>
+        <field name="subject">Reservation confirmation {{ object.name }}</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="report_template_ids" eval="[(4, ref('mariwan_reports.action_report_reservation_confirmation'))]"/>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p>Dear <t t-out="object.contact_name or object.partner_id.name or ''">Customer</t>,</p>
+    <p>Please find attached the reservation confirmation <strong t-out="object.name or ''">OF/2026/00001</strong>
+        for your request<t t-if="object.client_order_ref"> <t t-out="object.client_order_ref"/></t>.</p>
+    <p t-if="object.delivery_date">Tentative delivery date: <t t-out="format_date(object.delivery_date)"/>.</p>
+    <p>Best regards,<br/><t t-out="object.user_id.signature or object.user_id.name or ''"/></p>
+</div>
+        </field>
+    </record>
+
+    <record id="mail_template_dropship_instruction" model="mail.template">
+        <field name="name">Purchase: Drop-Ship Instruction to Vendor</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="subject">Drop-ship delivery instruction {{ object.name }}</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="report_template_ids" eval="[(4, ref('mariwan_reports.action_report_dropship_instruction'))]"/>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p>Dear <t t-out="object.partner_id.name or ''">Vendor</t>,</p>
+    <p>Please deliver purchase order <strong t-out="object.name or ''">P00001</strong> directly to our customer
+        as described in the attached instruction.</p>
+    <p>Kindly reply with the dispatch date, tracking number and proof of delivery.</p>
+    <p>Best regards,<br/><t t-out="object.user_id.signature or object.user_id.name or ''"/></p>
+</div>
+        </field>
+    </record>
+</odoo>

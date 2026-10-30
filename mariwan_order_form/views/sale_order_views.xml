@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tasks 5.11, 10.1, 2.7 -->
+    <record id="view_order_form_mariwan" model="ir.ui.view">
+        <field name="name">sale.order.form.mariwan</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_mariwan_override_credit" string="Override Credit Block" type="object"
+                        groups="mariwan_order_form.group_finance_manager"
+                        invisible="state not in ('draft', 'sent') or mariwan_payment_type != 'credit' or mariwan_credit_override"
+                        confirm="Allow this order to be confirmed despite the credit limit / overdue check?"/>
+            </xpath>
+            <xpath expr="//group[@name='order_details']" position="inside">
+                <field name="mariwan_order_form_id" invisible="not mariwan_order_form_id"/>
+                <field name="mariwan_payment_type"/>
+                <field name="mariwan_amount_paid" invisible="mariwan_payment_type != 'cash'"/>
+                <field name="mariwan_delivery_released" invisible="mariwan_payment_type != 'cash'"/>
+                <field name="mariwan_credit_override" invisible="not mariwan_credit_override"/>
+            </xpath>
+            <xpath expr="(//field[@name='order_line']//list//field[@name='product_uom_qty'])[1]" position="after">
+                <field name="mariwan_delivery_date" optional="show"/>
+                <field name="mariwan_reservation_status" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

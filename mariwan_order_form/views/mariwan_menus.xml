@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_mariwan_root" name="Order Forms" sequence="6"
+              web_icon="mariwan_order_form,static/description/icon.png"
+              groups="base.group_user"/>
+    <menuitem id="menu_mariwan_order_forms" name="Order Forms" parent="menu_mariwan_root"
+              action="action_mariwan_order_form" sequence="10"/>
+    <menuitem id="menu_mariwan_reservations" name="Reservations" parent="menu_mariwan_root"
+              action="action_mariwan_reservation" sequence="20"/>
+    <menuitem id="menu_mariwan_reporting" name="Reporting" parent="menu_mariwan_root" sequence="90"/>
+    <menuitem id="menu_mariwan_margin" parent="menu_mariwan_reporting"
+              action="action_mariwan_order_form_line_analysis" sequence="10"
+              groups="mariwan_order_form.group_cost_access"/>
+    <menuitem id="menu_mariwan_dropship_report" parent="menu_mariwan_reporting"
+              action="action_mariwan_dropship_report" sequence="20"/>
+    <menuitem id="menu_mariwan_override_report" parent="menu_mariwan_reporting"
+              action="action_mariwan_override_report" sequence="30"
+              groups="mariwan_order_form.group_cost_access"/>
+    <menuitem id="menu_mariwan_landed_variance" parent="menu_mariwan_reporting"
+              action="action_mariwan_landed_variance" sequence="40"
+              groups="mariwan_order_form.group_cost_access"/>
+</odoo>

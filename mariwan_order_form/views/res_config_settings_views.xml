@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_mariwan" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.mariwan</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='operations_setting_container']" position="before">
+                <block title="Mariwan Order Form" name="mariwan_setting_container">
+                    <setting string="Reservation grace period" help="Hold-until = tentative delivery date + grace days">
+                        <field name="mariwan_reservation_grace_days"/>
+                    </setting>
+                    <setting string="Cash sale delivery release" help="When a cash customer's delivery may be validated">
+                        <field name="mariwan_cash_release_rule"/>
+                        <div invisible="mariwan_cash_release_rule != 'advance'">
+                            <field name="mariwan_cash_advance_percent" class="oe_inline"/> %
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tasks 10.4 / 10.5: tracking reference is the standard stock_delivery field,
+         proof of delivery is attached in the chatter, signature is the standard one. -->
+    <record id="view_picking_form_mariwan" model="ir.ui.view">
+        <field name="name">stock.picking.form.mariwan</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="mariwan_order_form_id" invisible="not mariwan_order_form_id"/>
+                <field name="mariwan_dispatch_date" invisible="picking_type_code != 'dropship'"/>
+                <field name="mariwan_receiver_name" invisible="picking_type_code not in ('outgoing', 'dropship')"/>
+                <field name="mariwan_condition_remarks" invisible="picking_type_code not in ('outgoing', 'dropship', 'incoming')"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

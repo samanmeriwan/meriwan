@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tasks 5.1, 5.2, 5.9, 5.12 -->
+    <record id="view_mariwan_order_form_form" model="ir.ui.view">
+        <field name="name">mariwan.order.form.form</field>
+        <field name="model">mariwan.order.form</field>
+        <field name="arch" type="xml">
+            <form string="Order Form">
+                <header>
+                    <button name="action_check_availability" string="Check Availability" type="object" class="btn-primary"
+                            invisible="state != 'draft'" groups="mariwan_order_form.group_officer"/>
+                    <button name="action_check_availability" string="Refresh Availability" type="object"
+                            invisible="state not in ('checked', 'reserved', 'awaiting_stock', 'awaiting_vendor', 'quoted')"
+                            groups="mariwan_order_form.group_officer"/>
+                    <button name="action_reserve_all" string="Reserve All Available" type="object"
+                            invisible="state not in ('checked', 'reserved', 'awaiting_stock', 'awaiting_vendor', 'quoted')"
+                            groups="mariwan_order_form.group_officer"/>
+                    <button name="action_release_all" string="Release All" type="object"
+                            invisible="state not in ('reserved', 'awaiting_stock', 'quoted')"
+                            groups="mariwan_order_form.group_officer"
+                            confirm="Release every reservation of this Order Form?"/>
+                    <button name="action_create_purchase_order" string="Create Purchase Order" type="object"
+                            invisible="state not in ('checked', 'reserved', 'awaiting_stock', 'awaiting_vendor', 'quoted', 'confirmed') or order_type == 'stock'"
+                            groups="mariwan_order_form.group_officer"/>
+                    <button name="action_create_quotation" string="Create Quotation" type="object" class="btn-primary"
+                            invisible="state not in ('checked', 'reserved', 'awaiting_stock', 'awaiting_vendor')"
+                            groups="mariwan_order_form.group_officer"/>
+                    <button name="action_create_quotation" string="Update Quotation" type="object"
+                            invisible="state != 'quoted'" groups="mariwan_order_form.group_officer"
+                            confirm="The current quotation will be cancelled and replaced. Continue?"/>
+                    <button name="action_confirm_order" string="Confirm Order" type="object" class="btn-primary"
+                            invisible="state != 'quoted'" groups="mariwan_order_form.group_officer"/>
+                    <button name="action_close" string="Close" type="object"
+                            invisible="state != 'delivered'" groups="mariwan_order_form.group_officer"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('in_delivery', 'delivered', 'closed', 'cancel')"
+                            groups="mariwan_order_form.group_officer"
+                            confirm="Cancel this Order Form? Reservations are released and the quotation is cancelled."/>
+                    <button name="action_draft" string="Reset to Draft" type="object"
+                            invisible="state != 'cancel'" groups="mariwan_order_form.group_officer"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,checked,reserved,quoted,confirmed,in_delivery,delivered,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_quotations" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not quotation_count">
+                            <field name="quotation_count" widget="statinfo" string="Quotation"/>
+                        </button>
+                        <button name="action_view_sale_orders" type="object" class="oe_stat_button" icon="fa-dollar"
+                                invisible="not sale_count">
+                            <field name="sale_count" widget="statinfo" string="Sales Order"/>
+                        </button>
+                        <button name="action_view_purchase_orders" type="object" class="oe_stat_button"
+                                icon="fa-shopping-cart" invisible="not purchase_count">
+                            <field name="purchase_count" widget="statinfo" string="Purchase Orders"/>
+                        </button>
+                        <button name="action_view_receipts" type="object" class="oe_stat_button" icon="fa-truck"
+                                invisible="not receipt_count">
+                            <field name="receipt_count" widget="statinfo" string="Receipts"/>
+                        </button>
+                        <button name="action_view_deliveries" type="object" class="oe_stat_button" icon="fa-truck"
+                                invisible="not delivery_count">
+                            <field name="delivery_count" widget="statinfo" string="Deliveries"/>
+                        </button>
+                        <button name="action_view_vendor_shipments" type="object" class="oe_stat_button"
+                                icon="fa-plane" invisible="not vendor_shipment_count">
+                            <field name="vendor_shipment_count" widget="statinfo" string="Vendor Shipments"/>
+                        </button>
+                        <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
+                                invisible="not invoice_count">
+                            <field name="invoice_count" widget="statinfo" string="Invoices"/>
+                        </button>
+                        <button name="action_view_payments" type="object" class="oe_stat_button" icon="fa-money"
+                                invisible="not payment_count">
+                            <field name="payment_count" widget="statinfo" string="Payments"/>
+                        </button>
+                        <button name="action_view_reservations" type="object" class="oe_stat_button" icon="fa-lock"
+                                invisible="not reservation_ids">
+                            <span class="o_stat_text">Reservations</span>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Re-assigned" bg_color="text-bg-warning" invisible="not reservation_flagged"/>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <div class="alert alert-warning mb-2" role="alert"
+                         invisible="payment_type != 'credit' or partner_overdue &lt;= 0">
+                        Credit warning: this customer has an overdue amount of
+                        <field name="partner_overdue" class="oe_inline" readonly="1"/>.
+                    </div>
+                    <group>
+                        <group name="customer">
+                            <field name="partner_id" readonly="state not in ('draft', 'checked')"
+                                   context="{'res_partner_search_mode': 'customer'}"/>
+                            <field name="contact_name"/>
+                            <field name="contact_phone" widget="phone"/>
+                            <field name="request_channel"/>
+                            <field name="client_order_ref"/>
+                            <field name="partner_shipping_id" required="order_type in ('dropship', 'mixed')"/>
+                        </group>
+                        <group name="order">
+                            <field name="date" readonly="not can_edit_date"/>
+                            <field name="user_id"/>
+                            <field name="order_type"/>
+                            <field name="warehouse_id" groups="stock.group_stock_multi_warehouses"/>
+                            <field name="payment_type"/>
+                            <field name="payment_term_id" required="payment_type == 'credit'"/>
+                            <field name="delivery_date"/>
+                            <field name="availability" widget="badge"
+                                   decoration-success="availability == 'green'"
+                                   decoration-warning="availability == 'amber'"
+                                   decoration-danger="availability == 'red'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="can_edit_date" invisible="1"/>
+                        </group>
+                        <group name="credit" string="Customer Account" invisible="not partner_id">
+                            <field name="customer_type"/>
+                            <field name="credit_limit" invisible="customer_type != 'credit'"/>
+                            <field name="partner_balance"/>
+                            <field name="partner_overdue" decoration-danger="partner_overdue &gt; 0"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Products" name="lines">
+                            <field name="line_ids" readonly="state in ('confirmed', 'in_delivery', 'delivered', 'closed', 'cancel')"
+                                   context="{'default_delivery_date': delivery_date}">
+                                <list editable="bottom"
+                                      decoration-warning="availability_status == 'partial'"
+                                      decoration-danger="availability_status == 'not_available'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="name" optional="hide"/>
+                                    <field name="categ_id" optional="hide"/>
+                                    <field name="fulfilment_type"/>
+                                    <field name="product_qty"/>
+                                    <field name="product_uom_id" groups="uom.group_uom" optional="show"/>
+                                    <field name="on_hand_qty" optional="show"/>
+                                    <field name="reserved_other_qty" optional="show"/>
+                                    <field name="free_qty"/>
+                                    <field name="incoming_qty" optional="show"/>
+                                    <field name="incoming_date" optional="hide"/>
+                                    <field name="availability_status" widget="badge"
+                                           decoration-success="availability_status == 'available'"
+                                           decoration-warning="availability_status == 'partial'"
+                                           decoration-danger="availability_status == 'not_available'"/>
+                                    <button name="action_open_availability" type="object" icon="fa-flag"
+                                            title="Reservation details" class="text-warning"
+                                            invisible="availability_status not in ('partial', 'not_available') and not reserved_other_qty"/>
+                                    <field name="shortage_qty"/>
+                                    <field name="reserve_qty" optional="show"/>
+                                    <field name="reserved_qty"/>
+                                    <field name="reservation_status" optional="show"/>
+                                    <button name="action_reserve_line" type="object" icon="fa-lock" title="Reserve Line"
+                                            invisible="fulfilment_type == 'dropship' or parent.state in ('draft', 'confirmed', 'in_delivery', 'delivered', 'closed', 'cancel')"/>
+                                    <button name="action_release_line" type="object" icon="fa-unlock" title="Release Line"
+                                            invisible="not reserved_qty"/>
+                                    <field name="delivery_date" optional="show"/>
+                                    <field name="vendor_id" required="fulfilment_type in ('import', 'dropship')"
+                                           context="{'res_partner_search_mode': 'supplier'}" optional="show"/>
+                                    <field name="vendor_currency_id" optional="hide" groups="mariwan_order_form.group_cost_access"/>
+                                    <field name="vendor_unit_cost" optional="show" groups="mariwan_order_form.group_cost_access"/>
+                                    <field name="vendor_cost_aed" optional="hide" groups="mariwan_order_form.group_cost_access"/>
+                                    <field name="dropship_extra_cost" optional="hide" groups="mariwan_order_form.group_cost_access"
+                                           readonly="fulfilment_type != 'dropship'"/>
+                                    <field name="landed_cost_unit" optional="show" groups="mariwan_order_form.group_cost_access"/>
+                                    <field name="landed_cost_is_actual" optional="hide" groups="mariwan_order_form.group_cost_access"/>
+                                    <field name="total_unit_cost" optional="show" groups="mariwan_order_form.group_cost_access"/>
+                                    <field name="margin_percent" optional="show" groups="mariwan_order_form.group_cost_access"/>
+                                    <field name="margin_override" optional="hide" groups="mariwan_order_form.group_cost_access"
+                                           readonly="not can_override_price"/>
+                                    <field name="override_reason" optional="hide" readonly="not can_override_price"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_subtotal" sum="Total"/>
+                                    <field name="margin_amount" optional="hide" groups="mariwan_order_form.group_cost_access" sum="Margin"/>
+                                    <field name="po_info" optional="show"/>
+                                    <field name="line_status" optional="show" widget="badge"/>
+                                    <field name="remarks" optional="hide"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="can_override_price" column_invisible="1"/>
+                                    <field name="company_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="amount_cost" groups="mariwan_order_form.group_cost_access"/>
+                                <field name="amount_margin" groups="mariwan_order_form.group_cost_access"/>
+                                <field name="amount_total" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <group>
+                                <field name="note" placeholder="Printed on the Order Form and the quotation"/>
+                                <field name="internal_note" placeholder="Internal only, never printed"/>
+                            </group>
+                        </page>
+                        <page string="Reservations" name="reservations" invisible="not reservation_ids">
+                            <field name="reservation_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="product_uom_id"/>
+                                    <field name="delivery_date"/>
+                                    <field name="hold_until"/>
+                                    <field name="reserved_by"/>
+                                    <field name="reserved_on"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="release_reason"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_mariwan_order_form_list" model="ir.ui.view">
+        <field name="name">mariwan.order.form.list</field>
+        <field name="model">mariwan.order.form</field>
+        <field name="arch" type="xml">
+            <list string="Order Forms" decoration-muted="state == 'cancel'" decoration-danger="is_overdue">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="order_type"/>
+                <field name="state" widget="badge"/>
+                <field name="availability" widget="badge"
+                       decoration-success="availability == 'green'"
+                       decoration-warning="availability == 'amber'"
+                       decoration-danger="availability == 'red'"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="delivery_date"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="is_overdue" column_invisible="1"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mariwan_order_form_kanban" model="ir.ui.view">
+        <field name="name">mariwan.order.form.kanban</field>
+        <field name="model">mariwan.order.form</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column" quick_create="false">
+                <field name="currency_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex">
+                            <field name="name" class="fw-bold me-auto"/>
+                            <field name="availability" widget="badge"/>
+                        </div>
+                        <field name="partner_id"/>
+                        <div class="d-flex">
+                            <field name="delivery_date" class="me-auto"/>
+                            <field name="amount_total" widget="monetary"/>
+                        </div>
+                        <footer>
+                            <field name="order_type"/>
+                            <field name="user_id" widget="many2one_avatar_user" class="ms-auto"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_mariwan_order_form_search" model="ir.ui.view">
+        <field name="name">mariwan.order.form.search</field>
+        <field name="model">mariwan.order.form</field>
+        <field name="arch" type="xml">
+            <search string="Order Forms">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="client_order_ref"/>
+                <field name="line_ids" string="Product" filter_domain="[('line_ids.product_id', 'ilike', self)]"/>
+                <field name="user_id"/>
+                <filter name="my" string="My Orders" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="shortage" string="Shortage" domain="[('availability', 'in', ('amber', 'red'))]"/>
+                <filter name="reserved" string="Reserved" domain="[('reservation_ids.state', '=', 'active')]"/>
+                <filter name="awaiting_stock" string="Awaiting Stock" domain="[('state', '=', 'awaiting_stock')]"/>
+                <filter name="dropship" string="Drop Ship" domain="[('order_type', 'in', ('dropship', 'mixed')), ('line_ids.fulfilment_type', '=', 'dropship')]"/>
+                <filter name="credit" string="Credit Customers" domain="[('payment_type', '=', 'credit')]"/>
+                <filter name="overdue" string="Overdue Delivery Date" domain="[('is_overdue', '=', True)]"/>
+                <separator/>
+                <filter name="open" string="Open" domain="[('state', 'not in', ('closed', 'cancel'))]"/>
+                <filter name="date" string="Date" date="date"/>
+                <group>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_type" string="Order Type" context="{'group_by': 'order_type'}"/>
+                    <filter name="group_month" string="Month" context="{'group_by': 'date:month'}"/>
+                    <filter name="group_user" string="Salesperson" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_mariwan_order_form_pivot" model="ir.ui.view">
+        <field name="name">mariwan.order.form.pivot</field>
+        <field name="model">mariwan.order.form</field>
+        <field name="arch" type="xml">
+            <pivot string="Order Forms">
+                <field name="date" interval="month" type="col"/>
+                <field name="order_type" type="row"/>
+                <field name="amount_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_mariwan_order_form_graph" model="ir.ui.view">
+        <field name="name">mariwan.order.form.graph</field>
+        <field name="model">mariwan.order.form</field>
+        <field name="arch" type="xml">
+            <graph string="Order Forms" type="bar">
+                <field name="date" interval="month"/>
+                <field name="state"/>
+                <field name="amount_total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_mariwan_order_form" model="ir.actions.act_window">
+        <field name="name">Order Forms</field>
+        <field name="res_model">mariwan.order.form</field>
+        <field name="view_mode">list,kanban,form,pivot,graph</field>
+        <field name="context">{'search_default_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create the first Order Form</p>
+            <p>Capture a customer request, check stock in real time, reserve and quote.</p>
+        </field>
+    </record>
+</odoo>

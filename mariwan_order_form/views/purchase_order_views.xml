@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tasks 7.1 - 7.3 -->
+    <record id="purchase_order_form_mariwan" model="ir.ui.view">
+        <field name="name">purchase.order.form.mariwan</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_ref']" position="after">
+                <field name="mariwan_order_form_id"/>
+                <field name="mariwan_delivery_type"/>
+            </xpath>
+            <xpath expr="//page[@name='purchase_delivery_invoice']" position="after">
+                <page string="Shipment" name="mariwan_shipment" invisible="mariwan_delivery_type == 'dropship'">
+                    <group>
+                        <group>
+                            <field name="mariwan_container_no"/>
+                            <field name="mariwan_bl_number"/>
+                            <field name="mariwan_shipping_company"/>
+                        </group>
+                        <group>
+                            <field name="mariwan_port_of_loading"/>
+                            <field name="mariwan_eta"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="purchase_order_search_mariwan" model="ir.ui.view">
+        <field name="name">purchase.order.search.mariwan</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="mariwan_order_form_id"/>
+                <field name="mariwan_container_no"/>
+                <filter name="mariwan_dropship" string="Drop Ship" domain="[('mariwan_delivery_type', '=', 'dropship')]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

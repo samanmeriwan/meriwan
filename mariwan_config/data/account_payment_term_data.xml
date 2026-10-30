@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Task 2.6: payment terms. Immediate / 15 / 30 / 45 days are standard Odoo terms
+         (account.account_payment_term_immediate, _15days, _30days, _45days). -->
+    <record id="payment_term_7days" model="account.payment.term">
+        <field name="name">7 Days</field>
+        <field name="sequence">2</field>
+        <field name="line_ids" eval="[Command.clear(), Command.create({'value': 'percent', 'value_amount': 100.0, 'nb_days': 7})]"/>
+    </record>
+    <record id="payment_term_60days" model="account.payment.term">
+        <field name="name">60 Days</field>
+        <field name="sequence">8</field>
+        <field name="line_ids" eval="[Command.clear(), Command.create({'value': 'percent', 'value_amount': 100.0, 'nb_days': 60})]"/>
+    </record>
+    <record id="payment_term_advance_50" model="account.payment.term">
+        <field name="name">Advance 50% + Balance on Delivery</field>
+        <field name="sequence">9</field>
+        <field name="note">50% advance payable immediately; the 50% balance is collected on delivery.</field>
+        <field name="line_ids" eval="[Command.clear(),
+            Command.create({'value': 'percent', 'value_amount': 50.0, 'nb_days': 0}),
+            Command.create({'value': 'percent', 'value_amount': 50.0, 'nb_days': 7})]"/>
+    </record>
+</odoo>

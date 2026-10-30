@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mariwan_availability_popup_form" model="ir.ui.view">
+        <field name="name">mariwan.availability.popup.form</field>
+        <field name="model">mariwan.availability.popup</field>
+        <field name="arch" type="xml">
+            <form string="Availability Details">
+                <group>
+                    <group string="Product">
+                        <field name="product_id" readonly="1"/>
+                        <field name="warehouse_id" readonly="1"/>
+                        <field name="product_qty" string="Requested"/>
+                        <field name="product_uom_id" readonly="1"/>
+                    </group>
+                    <group string="Stock">
+                        <field name="on_hand_qty"/>
+                        <field name="reserved_other_qty"/>
+                        <field name="free_qty"/>
+                        <field name="reserved_qty"/>
+                        <field name="shortage_qty" decoration-danger="shortage_qty &gt; 0"/>
+                    </group>
+                </group>
+                <field name="is_sales_manager" invisible="1"/>
+                <separator string="Reservations"/>
+                <field name="reservation_ids" readonly="1">
+                    <list>
+                        <field name="partner_id"/>
+                        <field name="order_form_id"/>
+                        <field name="sale_order_id"/>
+                        <field name="quantity"/>
+                        <field name="delivery_date"/>
+                        <field name="reserved_on"/>
+                        <field name="reserved_by"/>
+                        <field name="state" widget="badge"/>
+                        <button name="action_reassign" type="object" icon="fa-exchange" title="Re-assign"
+                                groups="mariwan_order_form.group_sales_manager"/>
+                    </list>
+                </field>
+                <separator string="Incoming Purchase Orders"/>
+                <field name="incoming_line_ids" readonly="1">
+                    <list>
+                        <field name="order_id" string="PO"/>
+                        <field name="partner_id" string="Vendor"/>
+                        <field name="product_qty"/>
+                        <field name="qty_received"/>
+                        <field name="date_planned" string="Expected Arrival"/>
+                        <field name="state" widget="badge"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_reserve_available" string="Reserve Available Qty" type="object"
+                            class="btn-primary" groups="mariwan_order_form.group_officer"/>
+                    <button name="action_create_purchase_order" string="Create Purchase Order for Shortage"
+                            type="object" groups="mariwan_order_form.group_officer"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Phase 11: accounting approvals use the standard Approvals app.
+         Approvers are assigned on each category (Finance Manager by default);
+         amount-based levels (approval matrix, task 11.3) = several categories with
+         a minimum amount, kept archived until required. -->
+    <record id="approval_vendor_bill" model="approval.category">
+        <field name="name">Vendor Bill Approval</field>
+        <field name="sequence">10</field>
+        <field name="has_amount">required</field>
+        <field name="has_partner">required</field>
+        <field name="has_reference">required</field>
+        <field name="requirer_document">required</field>
+    </record>
+    <record id="approval_payment" model="approval.category">
+        <field name="name">Payment Approval</field>
+        <field name="sequence">11</field>
+        <field name="has_amount">required</field>
+        <field name="has_partner">required</field>
+        <field name="has_payment_method">required</field>
+    </record>
+    <record id="approval_credit_note" model="approval.category">
+        <field name="name">Credit Note Approval</field>
+        <field name="sequence">12</field>
+        <field name="has_amount">required</field>
+        <field name="has_partner">required</field>
+        <field name="has_reference">required</field>
+    </record>
+    <record id="approval_journal_entry" model="approval.category">
+        <field name="name">Journal Entry Approval</field>
+        <field name="sequence">13</field>
+        <field name="has_amount">required</field>
+        <field name="has_reference">required</field>
+    </record>
+    <record id="approval_stock_adjustment" model="approval.category">
+        <field name="name">Stock Adjustment Approval</field>
+        <field name="sequence">14</field>
+        <field name="has_product">required</field>
+        <field name="has_quantity">required</field>
+        <field name="has_amount">required</field>
+        <field name="has_location">optional</field>
+    </record>
+    <record id="approval_landed_cost" model="approval.category">
+        <field name="name">Landed Cost Approval</field>
+        <field name="sequence">15</field>
+        <field name="has_amount">required</field>
+        <field name="has_reference">required</field>
+        <field name="requirer_document">required</field>
+    </record>
+    <record id="approval_vendor_bill_high" model="approval.category">
+        <field name="name">Vendor Bill Approval - Level 2 (above 50,000 AED)</field>
+        <field name="sequence">20</field>
+        <field name="active" eval="False"/>
+        <field name="has_amount">required</field>
+        <field name="has_partner">required</field>
+        <field name="has_reference">required</field>
+        <field name="approval_minimum">2</field>
+    </record>
+</odoo>

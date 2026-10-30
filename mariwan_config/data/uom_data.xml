@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Task 3.4: UoM groups. Per-product conversions (1 carton = N pieces)
+         are set on the product with its own packaging UoM when needed. -->
+    <record id="uom_piece" model="uom.uom">
+        <field name="name">Pieces</field>
+        <field name="relative_factor">1.0</field>
+        <field name="relative_uom_id" ref="uom.product_uom_unit"/>
+    </record>
+    <record id="uom_carton" model="uom.uom">
+        <field name="name">Carton</field>
+        <field name="relative_factor">12.0</field>
+        <field name="relative_uom_id" ref="uom.product_uom_unit"/>
+    </record>
+    <record id="uom_pallet" model="uom.uom">
+        <field name="name">Pallet</field>
+        <field name="relative_factor">48.0</field>
+        <field name="relative_uom_id" ref="uom.product_uom_unit"/>
+    </record>
+    <record id="uom_container" model="uom.uom">
+        <field name="name">Container</field>
+        <field name="relative_factor">1000.0</field>
+        <field name="relative_uom_id" ref="uom.product_uom_unit"/>
+    </record>
+</odoo>

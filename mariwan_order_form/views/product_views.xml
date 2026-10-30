@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Task 4.1: only the fields Odoo does not have (HS code / origin come from stock_delivery). -->
+    <record id="product_template_form_view_mariwan" model="ir.ui.view">
+        <field name="name">product.template.form.mariwan</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']//group[@name='group_general']" position="inside">
+                <field name="mariwan_brand"/>
+                <field name="mariwan_model"/>
+                <field name="mariwan_fulfilment_type"/>
+                <field name="mariwan_min_stock" invisible="not is_storable"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_search_view_mariwan" model="ir.ui.view">
+        <field name="name">product.template.search.mariwan</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='filter_to_sell']" position="before">
+                <filter name="below_min" string="Below Minimum Stock" domain="[('mariwan_below_min', '=', True)]"/>
+                <separator/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_category_form_view_mariwan" model="ir.ui.view">
+        <field name="name">product.category.form.mariwan</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='first']" position="inside">
+                <field name="mariwan_landed_cost_estimate" groups="mariwan_order_form.group_cost_access"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

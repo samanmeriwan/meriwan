@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Task 1.3: the same idempotent setup runs on test and production. -->
+    <record id="action_reapply_configuration" model="ir.actions.server">
+        <field name="name">Re-apply Mariwan configuration</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="state">code</field>
+        <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        <field name="code">env['res.company']._mariwan_apply_configuration()</field>
+    </record>
+    <menuitem id="menu_mariwan_technical" name="Mariwan" parent="base.menu_custom" sequence="200"/>
+    <menuitem id="menu_reapply_configuration" action="action_reapply_configuration"
+              parent="menu_mariwan_technical" sequence="10"/>
+</odoo>
