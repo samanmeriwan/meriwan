@@ -31,7 +31,9 @@ class SaleOrder(models.Model):
     def _compute_mariwan_payment(self):
         for order in self:
             invoices = order.invoice_ids.filtered(lambda m: m.state == 'posted')
-            paid = sum((m.amount_total - m.amount_residual) * (-1 if m.move_type == 'out_refund' else 1)
+            # 'in_payment': paid, waiting for the bank statement match (residual not reduced yet)
+            paid = sum((m.amount_total if m.payment_state in ('paid', 'in_payment')
+                        else m.amount_total - m.amount_residual) * (-1 if m.move_type == 'out_refund' else 1)
                        for m in invoices)
             order.mariwan_amount_paid = paid
             order.mariwan_delivery_released = order.mariwan_payment_type != 'cash' or \

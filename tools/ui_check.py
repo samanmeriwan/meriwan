@@ -115,7 +115,10 @@ for login, model in (('saman', 'sale.order'), ('saman', 'purchase.order'), ('war
         vv = rs.call(model, 'get_views', [[[False, 'form']]])
         ids = rs.call(model, 'search', [[]], limit=2) if model != 'res.config.settings' else []
         if ids:
-            sp = {f: {} for f, d in vv['models'][model]['fields'].items() if d['type'] not in ('one2many', 'many2many')}
+            # like the browser: only fields left in the arch after group filtering
+            arch = vv['views']['form']['arch']
+            sp = {f: {} for f, d in vv['models'][model]['fields'].items()
+                  if d['type'] not in ('one2many', 'many2many') and f'name="{f}"' in arch}
             rs.call(model, 'web_read', [ids], specification=sp)
         return 'ok'
     check(f'[{login}] {model} form with Mariwan fields', std)
