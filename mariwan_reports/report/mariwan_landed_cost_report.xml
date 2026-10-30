@@ -44,8 +44,9 @@
                     <tbody>
                         <t t-foreach="o.valuation_adjustment_lines.mapped('product_id')" t-as="product">
                             <t t-set="adj" t-value="o.valuation_adjustment_lines.filtered(lambda a: a.product_id == product)"/>
-                            <t t-set="qty" t-value="sum(adj.mapped('move_id').mapped('quantity'))"/>
-                            <t t-set="former" t-value="sum(adj.mapped('move_id').mapped(lambda m: m._get_value()))"/>
+                            <t t-set="per_move" t-value="dict((a.move_id.id, (a.quantity, a.former_cost)) for a in adj)"/>
+                            <t t-set="qty" t-value="sum(v[0] for v in per_move.values())"/>
+                            <t t-set="former" t-value="sum(v[1] for v in per_move.values())"/>
                             <t t-set="landed" t-value="sum(adj.mapped('additional_landed_cost'))"/>
                             <tr>
                                 <td><span t-field="product.display_name"/></td>

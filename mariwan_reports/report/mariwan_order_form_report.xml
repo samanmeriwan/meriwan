@@ -23,7 +23,7 @@
                 <table class="table table-sm o_main_table">
                     <thead>
                         <tr>
-                            <th class="text-start">Product</th>
+                            <th class="text-start">SKU</th>
                             <th class="text-start">Description</th>
                             <th class="text-end">Requested</th>
                             <th class="text-end">Available</th>
@@ -35,7 +35,7 @@
                     </thead>
                     <tbody>
                         <tr t-foreach="o.line_ids" t-as="line">
-                            <td><span t-field="line.product_id.display_name"/></td>
+                            <td><span t-field="line.product_id.default_code"/></td>
                             <td><span t-field="line.name"/></td>
                             <td class="text-end"><span t-field="line.product_qty"/> <span t-field="line.product_uom_id" groups="uom.group_uom"/></td>
                             <td class="text-end"><span t-out="min(line.free_qty, line.product_qty)" t-options='{"widget": "float", "precision": 2}'/></td>

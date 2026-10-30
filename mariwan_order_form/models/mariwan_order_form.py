@@ -288,7 +288,7 @@ class MariwanOrderForm(models.Model):
 
     def _update_state_from_lines(self):
         """Pre-quotation status: Reserved / Awaiting Stock / Awaiting Vendor / Checked."""
-        for form in self.filtered(lambda f: f.state in ('checked', 'reserved', 'awaiting_stock', 'awaiting_vendor')):
+        for form in self.sudo().filtered(lambda f: f.state in ('checked', 'reserved', 'awaiting_stock', 'awaiting_vendor')):
             lines = form.line_ids
             if lines.filtered(lambda l: l.fulfilment_type == 'import' and l.purchase_line_ids
                               and l.reserved_qty < l.product_qty):
@@ -396,16 +396,23 @@ class MariwanOrderForm(models.Model):
     def action_draft(self):
         self._ensure_state(('cancel',), self.env._("Reset to Draft"))
         self.state = 'draft'
+        return True
 
     def action_close(self):
         self._ensure_state(('delivered',), self.env._("Close"))
         self.state = 'closed'
+        return True
+
+    def _log(self, body):
+        """Chatter log usable by roles that only read Order Forms (accountant, pricing, warehouse)."""
+        for form in self:
+            form.sudo().message_post(body=body, author_id=self.env.user.partner_id.id)
 
     # ------------------------------------------------------------------
     # Progress from documents (In Delivery / Delivered / Closed)
     # ------------------------------------------------------------------
     def _update_progress(self):
-        for form in self.filtered(lambda f: f.state in ('confirmed', 'in_delivery', 'delivered')):
+        for form in self.sudo().filtered(lambda f: f.state in ('confirmed', 'in_delivery', 'delivered')):
             orders = form.sale_order_ids.filtered(lambda s: s.state == 'sale')
             if not orders:
                 continue

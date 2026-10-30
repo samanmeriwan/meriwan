@@ -62,12 +62,12 @@ class MariwanOrderFormLine(models.Model):
     delivery_date = fields.Date('Tentative Delivery Date', compute='_compute_delivery_date', store=True, readonly=False)
 
     # B16 - B20: vendor and cost block
-    vendor_id = fields.Many2one('res.partner', 'Vendor', compute='_compute_vendor', store=True, readonly=False,
+    vendor_id = fields.Many2one('res.partner', 'Vendor', compute='_compute_vendor_id', store=True, readonly=False,
                                 check_company=True)
-    vendor_currency_id = fields.Many2one('res.currency', 'Vendor Currency', compute='_compute_vendor',
+    vendor_currency_id = fields.Many2one('res.currency', 'Vendor Currency', compute='_compute_vendor_cost',
                                          store=True, readonly=False, groups=COST_GROUP)
     vendor_unit_cost = fields.Monetary('Vendor Unit Cost', currency_field='vendor_currency_id',
-                                       compute='_compute_vendor', store=True, readonly=False, groups=COST_GROUP)
+                                       compute='_compute_vendor_cost', store=True, readonly=False, groups=COST_GROUP)
     exchange_rate = fields.Float('Rate', compute='_compute_costs', store=True, digits=(12, 6), groups=COST_GROUP)
     vendor_cost_aed = fields.Monetary('Vendor Cost (AED)', compute='_compute_costs', store=True, groups=COST_GROUP)
     dropship_extra_cost = fields.Monetary(
@@ -276,20 +276,27 @@ class MariwanOrderFormLine(models.Model):
     # Vendor, cost and price (tasks 5.7, 5.8, 8.5)
     # ------------------------------------------------------------------
     @api.depends('product_id', 'fulfilment_type')
-    def _compute_vendor(self):
+    def _compute_vendor_id(self):
         for line in self:
             if line.fulfilment_type == 'stock' or not line.product_id:
-                line.vendor_id = line.vendor_id if line.fulfilment_type != 'stock' else False
-                line.vendor_currency_id = line.company_id.currency_id
+                line.vendor_id = False
+            elif not line.vendor_id:
+                line.vendor_id = line.product_id.seller_ids[:1].partner_id
+
+    @api.depends('product_id', 'fulfilment_type', 'vendor_id', 'product_uom_id')
+    def _compute_vendor_cost(self):
+        for line in self:
+            company_currency = line.company_id.currency_id or self.env.company.currency_id
+            if line.fulfilment_type == 'stock' or not line.product_id:
+                line.vendor_currency_id = company_currency
                 line.vendor_unit_cost = 0.0
                 continue
             seller = line.product_id._select_seller(
                 partner_id=line.vendor_id or False, quantity=line.product_qty, uom_id=line.product_uom_id
-            ).get('supplierinfo') or line.product_id.seller_ids[:1]
-            vendor = line.vendor_id or seller.partner_id
-            line.vendor_id = vendor
-            line.vendor_currency_id = seller.currency_id or vendor.property_purchase_currency_id \
-                or line.company_id.currency_id
+            ).get('supplierinfo') or line.product_id.seller_ids.filtered(
+                lambda s: not line.vendor_id or s.partner_id == line.vendor_id)[:1]
+            line.vendor_currency_id = seller.currency_id or line.vendor_id.property_purchase_currency_id \
+                or company_currency
             price = seller.price if seller else 0.0
             if seller and seller.uom_id and line.product_uom_id:
                 price = seller.uom_id._compute_price(price, line.product_uom_id)
@@ -383,7 +390,7 @@ class MariwanOrderFormLine(models.Model):
             old_price = line.price_unit
             line.write({'actual_landed_cost_unit': per_unit, 'landed_cost_is_actual': True})
             if line.currency_id.compare_amounts(old_price, line.price_unit):
-                line.order_form_id.message_post(body=self.env._(
+                line.order_form_id._log(self.env._(
                     "Actual landed cost validated for %(product)s: selling price changed from %(old)s to %(new)s.",
                     product=line.product_id.display_name,
                     old=line.currency_id.format(old_price), new=line.currency_id.format(line.price_unit)))
@@ -405,7 +412,7 @@ class MariwanOrderFormLine(models.Model):
                                                line.product_id.display_name))
             res = super().write(vals)
             for line, old in overrides.items():
-                line.order_form_id.message_post(body=self.env._(
+                line.order_form_id._log(self.env._(
                     "Margin override on %(product)s: %(old)s%% -> %(new)s%%, selling price %(price)s "
                     "(reason: %(reason)s)",
                     price=line.currency_id.format(line.price_unit),

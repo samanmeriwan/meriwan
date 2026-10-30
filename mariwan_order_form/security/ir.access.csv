@@ -12,3 +12,6 @@ access_reservation_officer,Reservation: officer,mariwan.reservation,group_office
 access_reservation_admin,Reservation: administrator,mariwan.reservation,group_admin,crud,
 access_availability_popup_user,Availability popup,mariwan.availability.popup,base.group_user,crud,
 access_reservation_reassign_manager,Reservation re-assign,mariwan.reservation.reassign,group_sales_manager,crud,
+access_landed_cost_accountant,Landed Cost: accountant,stock.landed.cost,group_accountant,crud,
+access_landed_cost_lines_accountant,Landed Cost Lines: accountant,stock.landed.cost.lines,group_accountant,crud,
+access_valuation_adjustment_accountant,Valuation Adjustment: accountant,stock.valuation.adjustment.lines,group_accountant,crud,

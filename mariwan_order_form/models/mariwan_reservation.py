@@ -59,7 +59,7 @@ class MariwanReservation(models.Model):
         for res in reservations:
             if res.quantity <= 0:
                 raise UserError(self.env._("The reserved quantity must be positive."))
-            res.order_form_id.message_post(body=self.env._(
+            res.order_form_id._log(self.env._(
                 "Reserved %(qty)s %(uom)s of %(product)s until %(date)s.",
                 qty=res.quantity, uom=res.product_uom_id.name, product=res.product_id.display_name,
                 date=res.hold_until))
@@ -74,7 +74,7 @@ class MariwanReservation(models.Model):
                 'released_on': fields.Datetime.now(),
                 'release_reason': reason,
             })
-            res.order_form_id.message_post(body=self.env._(
+            res.order_form_id._log(self.env._(
                 "Released reservation %(name)s: %(qty)s of %(product)s (%(reason)s).",
                 name=res.name, qty=res.quantity, product=res.product_id.display_name, reason=reason))
         return True

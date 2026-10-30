@@ -50,7 +50,7 @@ class StockPicking(models.Model):
                                             string='Order Form')
 
     def _compute_mariwan_order_form_id(self):
-        for picking in self:
+        for picking in self.sudo():
             picking.mariwan_order_form_id = picking.sale_id.mariwan_order_form_id \
                 or picking.purchase_id.mariwan_order_form_id
 
@@ -60,7 +60,7 @@ class StockPicking(models.Model):
 
     def _mariwan_check_cash_payment(self):
         """Tasks 6.4 / 10.2 (rule R5): cash customers - delivery released once payment is registered."""
-        for picking in self.filtered(lambda p: p.picking_type_code in ('outgoing', 'dropship') and p.sale_id):
+        for picking in self.sudo().filtered(lambda p: p.picking_type_code in ('outgoing', 'dropship') and p.sale_id):
             order = picking.sale_id
             if order.mariwan_payment_type != 'cash' or order.mariwan_delivery_released:
                 continue
@@ -74,8 +74,9 @@ class StockPicking(models.Model):
 
     def _action_done(self):
         res = super()._action_done()
-        self._mariwan_assign_received_stock()
-        forms = self.sale_id.mariwan_order_form_id | self.purchase_id.mariwan_order_form_id
+        pickings = self.sudo()
+        pickings._mariwan_assign_received_stock()
+        forms = pickings.sale_id.mariwan_order_form_id | pickings.purchase_id.mariwan_order_form_id
         forms._update_progress()
         return res
 
@@ -107,6 +108,6 @@ class StockLandedCost(models.Model):
     def button_validate(self):
         res = super().button_validate()
         # Task 8.3 / 8.5: the new cost flows to the Order Form.
-        lines = self.valuation_adjustment_lines.move_id.purchase_line_id.mariwan_line_id
+        lines = self.sudo().valuation_adjustment_lines.move_id.purchase_line_id.mariwan_line_id
         lines._update_actual_landed_cost()
         return res

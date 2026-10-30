@@ -77,15 +77,17 @@ class SaleOrder(models.Model):
             form.reservation_ids.filtered(lambda r: r.state == 'active').write({'state': 'converted'})
             if form.state not in ('cancel', 'closed'):
                 form.state = 'confirmed'
-            form.message_post(body=self.env._("Sales order %s confirmed.", order._get_html_link()))
+            form._log(self.env._("Sales order %s confirmed.", order._get_html_link()))
         return res
 
     def action_mariwan_override_credit(self):
         if not self.env.user.has_group('mariwan_order_form.group_finance_manager'):
             raise UserError(self.env._("Only the Finance Manager can override the credit block."))
-        for order in self:
+        for order in self.sudo():
             order.mariwan_credit_override = True
-            order.message_post(body=self.env._("Credit block overridden by %s.", self.env.user.name))
+            order.message_post(body=self.env._("Credit block overridden by %s.", self.env.user.name),
+                               author_id=self.env.user.partner_id.id)
+        return True
 
     def _prepare_invoice(self):
         vals = super()._prepare_invoice()
@@ -145,8 +147,7 @@ class PurchaseOrder(models.Model):
             for user in approvers.filtered(lambda u: po.company_id in u.company_ids)[:3]:
                 po.activity_schedule('mail.mail_activity_data_todo', user_id=user.id,
                                      summary=self.env._("Purchase order to approve"))
-        for po in self.filtered('mariwan_order_form_id'):
-            po.mariwan_order_form_id._update_state_from_lines()
+        self.sudo().mariwan_order_form_id._update_state_from_lines()
         return res
 
     def button_approve(self, force=False):
@@ -171,4 +172,5 @@ class PurchaseOrderLine(models.Model):
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    mariwan_order_form_id = fields.Many2one('mariwan.order.form', 'Order Form', copy=False, index='btree_not_null')
+    # Copied on reversal so credit notes keep the Order Form link (task 10.6).
+    mariwan_order_form_id = fields.Many2one('mariwan.order.form', 'Order Form', index='btree_not_null')
