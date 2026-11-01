@@ -58,7 +58,12 @@ for login, name, group in ROLES:
     print('user', login)
 for name, ctype, pricelist in (('Sample Cash Customer', 'cash', 'pricelist_uae'),
                                ('Sample Credit Customer (GCC)', 'credit', 'pricelist_gcc')):
-    if not call('res.partner', 'search', [('name', '=', name)]):
+    # A previous run leaves invoices that become overdue and block new orders: start fresh.
+    old = call('res.partner', 'search', [('name', '=', name)])
+    if old and call('account.move', 'search_count', [('partner_id', 'in', old), ('state', '=', 'posted')]):
+        call('res.partner', 'write', old, {'active': False})
+        old = []
+    if not old:
         call('res.partner', 'create', {
             'name': name, 'is_company': True, 'customer_rank': 1, 'mariwan_customer_type': ctype,
             'credit_limit': 50000 if ctype == 'credit' else 0, 'country_id': ref('base.ae'),

@@ -105,6 +105,11 @@ class StockPicking(models.Model):
 class StockLandedCost(models.Model):
     _inherit = 'stock.landed.cost'
 
+    def _get_targeted_move_ids(self):
+        # With Manufacturing installed, mrp_landed_costs reads mrp_production_ids here, which is
+        # restricted to Inventory Administrators: the Accountant must still be able to validate.
+        return super(StockLandedCost, self.sudo())._get_targeted_move_ids().with_env(self.env)
+
     def button_validate(self):
         res = super().button_validate()
         # Task 8.3 / 8.5: the new cost flows to the Order Form.
