@@ -193,17 +193,19 @@ class MariwanOrderForm(models.Model):
         return self._get_invoices()._get_reconciled_payments()
 
     def _compute_counts(self):
+        # Counts only (e.g. the Warehouse user has no access to invoices); the buttons keep normal rights.
         for form in self:
-            sales = form.sale_order_ids
-            pickings = form._get_pickings()
+            sudo_form = form.sudo()
+            sales = sudo_form.sale_order_ids
+            pickings = sudo_form._get_pickings()
             form.quotation_count = len(sales.filtered(lambda s: s.state in ('draft', 'sent')))
             form.sale_count = len(sales.filtered(lambda s: s.state == 'sale'))
-            form.purchase_count = len(form.purchase_order_ids)
+            form.purchase_count = len(sudo_form.purchase_order_ids)
             form.receipt_count = len(pickings.filtered(lambda p: p.picking_type_code == 'incoming'))
             form.delivery_count = len(pickings.filtered(lambda p: p.picking_type_code == 'outgoing'))
             form.vendor_shipment_count = len(pickings.filtered(lambda p: p.picking_type_code == 'dropship'))
-            form.invoice_count = len(form._get_invoices())
-            form.payment_count = len(form._get_payments())
+            form.invoice_count = len(sudo_form._get_invoices())
+            form.payment_count = len(sudo_form._get_payments())
 
     # ------------------------------------------------------------------
     # CRUD & validation (task 6.7)
