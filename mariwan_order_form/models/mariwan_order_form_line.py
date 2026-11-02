@@ -412,6 +412,12 @@ class MariwanOrderFormLine(models.Model):
     # Price override control (task 9.2)
     # ------------------------------------------------------------------
     def write(self, vals):
+        # D5: the Pricing Manager changes margin / price only (other line fields belong to the officer).
+        user = self.env.user
+        if not self.env.su and set(vals) - {'margin_override', 'is_price_overridden', 'override_reason'} \
+                and user.has_group('mariwan_order_form.group_pricing_manager') \
+                and not user.has_group('mariwan_order_form.group_officer'):
+            raise UserError(self.env._("The Pricing Manager can only change the margin and its reason."))
         if 'margin_override' in vals or 'is_price_overridden' in vals:
             if not self.env.su and not self.env.user.has_group('mariwan_order_form.group_pricing_manager'):
                 raise UserError(self.env._("Only the Pricing Manager can change the margin."))

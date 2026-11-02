@@ -30,8 +30,7 @@ class MariwanOrderForm(models.Model):
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
     currency_id = fields.Many2one(related='company_id.currency_id')
     partner_id = fields.Many2one(
-        'res.partner', 'Customer', required=True, tracking=True, check_company=True, index=True,
-        domain="[('type', '!=', 'private'), ('is_company', '=', True)]")
+        'res.partner', 'Customer', required=True, tracking=True, check_company=True, index=True)
     contact_name = fields.Char('Contact Person', compute='_compute_contact', store=True, readonly=False)
     contact_phone = fields.Char('Contact Phone', compute='_compute_contact', store=True, readonly=False)
     request_channel = fields.Selection([
