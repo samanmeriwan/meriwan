@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -48,6 +48,14 @@ class StockPicking(models.Model):
     mariwan_condition_remarks = fields.Char('Condition Remarks', copy=False)
     mariwan_order_form_id = fields.Many2one('mariwan.order.form', compute='_compute_mariwan_order_form_id',
                                             string='Order Form')
+    mariwan_package_count = fields.Integer(
+        'Number of Packages', compute='_compute_mariwan_package_count', store=True, readonly=False,
+        help="Printed on the delivery challan and packing slip. Defaults to the packed packages, else 1.")
+
+    @api.depends('move_line_ids.result_package_id')
+    def _compute_mariwan_package_count(self):
+        for picking in self:
+            picking.mariwan_package_count = len(picking.move_line_ids.result_package_id) or 1
 
     def _compute_mariwan_order_form_id(self):
         for picking in self.sudo():

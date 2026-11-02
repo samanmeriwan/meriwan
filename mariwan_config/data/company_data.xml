@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Task 2.1: company details from the client's templates; runs on install and upgrade,
+         fills only empty / default values. -->
+    <function model="res.company" name="_mariwan_setup_company_details" eval="[[]]"/>
+</odoo>

@@ -12,6 +12,7 @@
                 <field name="mariwan_dispatch_date" invisible="picking_type_code != 'dropship'"/>
                 <field name="mariwan_receiver_name" invisible="picking_type_code not in ('outgoing', 'dropship')"/>
                 <field name="mariwan_condition_remarks" invisible="picking_type_code not in ('outgoing', 'dropship', 'incoming')"/>
+                <field name="mariwan_package_count" invisible="picking_type_code not in ('outgoing', 'dropship')"/>
             </xpath>
         </field>
     </record>

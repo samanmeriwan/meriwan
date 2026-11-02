@@ -1,6 +1,6 @@
 {
     'name': 'Mariwan - Document Templates',
-    'version': '20.0.1.0.0',
+    'version': '20.0.1.0.1',
     'category': 'Sales/Sales',
     'summary': 'Mariwan print and email templates: Order Form, reservation confirmation, '
                'drop-ship vendor instruction, landed cost sheet, No VAT additions to standard documents',
@@ -9,6 +9,7 @@ Phase 12 document templates. Standard Odoo layouts are kept (company layout, A4,
 quotation, invoice, delivery slip, purchase order, payment receipt, follow-up
 statement); this module only adds what Mariwan needs on them:
 
+* Client formats: Invoice, Delivery Challan and Packing Slip (default invoice on the sales journal)
 * Order Form print and reservation confirmation (new)
 * Drop-ship delivery instruction to the vendor (new)
 * Landed cost sheet with approval box (new)
@@ -26,6 +27,7 @@ statement); this module only adds what Mariwan needs on them:
         'report/mariwan_purchase_report.xml',
         'report/mariwan_landed_cost_report.xml',
         'report/standard_report_inherit.xml',
+        'report/mariwan_client_documents.xml',
         'data/mail_template_data.xml',
     ],
     'post_init_hook': 'post_init_hook',

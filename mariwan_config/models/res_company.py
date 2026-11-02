@@ -1,6 +1,10 @@
 import logging
 
+from markupsafe import Markup
+
 from odoo import Command, models
+from odoo.tools import file_open
+from odoo.tools.binary import BinaryBytes
 
 _logger = logging.getLogger(__name__)
 
@@ -169,16 +173,44 @@ class ResCompany(models.Model):
             'fiscalyear_last_month': '12',
             'fiscalyear_last_day': 31,
         }
-        if self.name in ('My Company', 'YourCompany'):
-            vals.update({'name': 'Mariwan Trading Ltd', 'city': 'Dubai'})
         if self.currency_id != aed:
             vals['currency_id'] = aed.id
         self.write(vals)
+        self._mariwan_setup_company_details()
         self.partner_id.tz = 'Asia/Dubai'
         self.env.ref('base.user_admin').tz = 'Asia/Dubai'
         price_precision = self.env.ref('product.decimal_price', raise_if_not_found=False)
         if price_precision:
             price_precision.digits = 2
+
+    def _mariwan_setup_company_details(self):
+        """Task 2.1: name, address, contacts and logo from the client's document templates.
+        Only fills what is still empty / default, so values edited in Odoo are kept."""
+        self = self or self.env.ref('base.main_company')
+        if self.name in ('My Company', 'YourCompany', 'Mariwan Trading Ltd'):
+            self.name = 'Meriwan Trading FZCO'
+        defaults = {
+            'street': 'Jafza One, Building BB1307',
+            'street2': 'P.O. Box 18713',
+            'city': 'Dubai',
+            'phone': '+971 4 886 0799',
+            'email': 'saman@meriwanltd.com',
+            'website': 'www.meriwanltd.com',
+        }
+        self.write({field: value for field, value in defaults.items() if not self[field]})
+        params = self.env['ir.config_parameter'].sudo()
+        if not params.get_bool('mariwan_config.logo_installed'):
+            # Once only: a logo uploaded later in Odoo is never overwritten.
+            with file_open('mariwan_config/static/img/meriwan_logo.png', 'rb') as f:
+                self.logo = BinaryBytes(f.read())
+            params.set_bool('mariwan_config.logo_installed', True)
+        if not self.company_details:
+            # Standard "Company Details" block (Settings > Document Layout), printed on the documents.
+            self.company_details = Markup(
+                "<b>%s</b><br/>Jafza One, Building BB1307<br/>Dubai, United Arab Emirates<br/>"
+                "P.O. BOX: 18713<br/><b>Phone:</b> +971 4 886 0799<br/><b>Mobile:</b> +971 50 604 5590<br/>"
+                "<b>Website:</b> www.meriwanltd.com<br/><b>E-Mail:</b> saman@meriwanltd.com") % self.name
+        return True
 
     def _mariwan_setup_chart(self):
         # The default (generic) chart is loaded by Odoo itself; only fix the fiscal country.

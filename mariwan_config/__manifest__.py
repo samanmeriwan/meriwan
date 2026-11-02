@@ -1,6 +1,6 @@
 {
     'name': 'Mariwan - UAE Company Configuration',
-    'version': '20.0.1.0.0',
+    'version': '20.0.1.0.1',
     'category': 'Accounting/Localizations',
     'summary': 'Mariwan Trading Ltd: UAE company, AED, No VAT, chart of accounts, journals, warehouse and inventory setup',
     'description': """
@@ -33,12 +33,14 @@ Settings > Technical > Mariwan > Re-apply configuration):
         'account_reports',
         'currency_rate_live',
         'approvals',
+        'auth_password_policy',
     ],
     'data': [
         'data/uom_data.xml',
         'data/account_payment_term_data.xml',
         'data/approval_category_data.xml',
         'data/ir_actions_server.xml',
+        'data/company_data.xml',
     ],
     'post_init_hook': 'post_init_hook',
     'installable': True,

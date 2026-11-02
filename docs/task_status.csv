@@ -1,8 +1,8 @@
 ID,Task,Status,Remarks
-1.1,Create project workspace and baseline documents,In Progress,Repo structure + task tracker in place; decision/issue log docs still to write
+1.1,Create project workspace and baseline documents,Completed,"Repo structure, task tracker, docs/decision_log.md (decisions, open questions, issues)"
 1.2,Provision Odoo test and production databases,In Progress,Local test DB ready (Odoo 20); Odoo.sh staging/production pending version confirmation
 1.3,Set up source control and module scaffold for the custom module,Completed,"Modules mariwan_config, mariwan_order_form, mariwan_reports; config re-applicable from Settings > Technical > Mariwan"
-2.1,Create and configure the UAE company,In Progress,"UAE, AED, Asia/Dubai, fiscal year Jan-Dec done; address, logo, website needed from client"
+2.1,Create and configure the UAE company,In Progress,"UAE, AED, Asia/Dubai, Jan-Dec; name Meriwan Trading FZCO, Jafza One address, phone, mobile, website, email and logo from the client document formats. Trade licence number pending"
 2.2,Activate required Odoo apps and features,Completed,"Accounting, Inventory, Sales, Purchase, Contacts, Landed Costs, Drop Ship, Approvals + multi-currency, perpetual AVCO"
 2.3,Configure No VAT / no tax,Completed,"No taxes, no tax defaults, no TRN; tested (no tax on SO/invoice)"
 2.4,Configure chart of accounts,Completed,"Client chart of accounts applied on Odoo default chart + Landed Cost Clearing, Customer Advances"
@@ -12,7 +12,7 @@ ID,Task,Status,Remarks
 2.8,Configure multi-currency purchasing,Completed,"USD/EUR/CNY/GBP/INR/SAR active, daily CBUAE rates, exchange gain/loss accounts; AED equivalent on Order Form and PO"
 2.9,"Configure bank, cash and reconciliation",Completed,"Bank/cash journals, standard statement import, reconciliation models"
 2.10,Configure advance payments (customer and vendor),Completed,Standard down payments (Customer Advances account) and vendor down payments on PO
-2.11,Configure period lock and month-end controls,In Progress,Standard lock dates (Finance Manager); month-end checklist document pending
+2.11,Configure period lock and month-end controls,Completed,Standard lock dates (Finance Manager); docs/month_end_checklist.md
 3.1,Configure warehouse(s) and locations,Completed,"Mariwan UAE Warehouse (MRW): Stock, Receiving, Quality Hold, Damaged, Scrap; drop-ship virtual flow"
 3.2,Configure routes and operation types,Completed,"Receipts/Deliveries/Returns standard, Drop Ship route active, MTO off, reserve at confirmation"
 3.3,Configure product categories and valuation,Completed,"Client categories (Brake Pads, Rotors, ...) with AVCO + perpetual valuation from company defaults"
@@ -81,11 +81,11 @@ ID,Task,Status,Remarks
 12.10,Design the payment receipt and customer statement templates,Completed,Standard payment receipt and follow-up statement
 12.11,Design the landed cost sheet printout,Completed,Landed cost sheet with approval box
 12.12,Design email templates,Completed,Reservation and drop-ship templates added; others standard
-12.13,Build the templates in Odoo and test,In Progress,Templates installed; print review with real samples pending
+12.13,Build the templates in Odoo and test,Completed,"Client formats built (Invoice default on sales journal, Delivery Challan, Packing Slip) and compared side by side with the client PDFs"
 13.1,Create roles and security groups,Completed,"Roles: Officer, Warehouse, Accountant, Finance Manager, Pricing Manager, Sales Manager, Administrator"
 13.2,Create user accounts,In Progress,Test users per role created locally; real user list needed
 13.3,Apply segregation of duties,Completed,"Warehouse no cost/posting, Finance Manager only for lock dates and credit override"
-13.4,Configure password and login security,Not Started,Standard 2FA and password policy to configure
+13.4,Configure password and login security,In Progress,Password minimum 8 characters (standard auth_password_policy); 2FA available per user; enforce for all employees at go-live once outgoing email works
 14.1,Build the Order Form / sales dashboard,In Progress,Order Form pivot/graph/filters and reports; KPI dashboard page not built
 14.2,Build the inventory dashboard,Completed,Standard Inventory dashboard + below-minimum filter
 14.3,Build the purchase and import dashboard,Completed,Standard Purchase dashboard + landed cost variance report
@@ -104,7 +104,7 @@ ID,Task,Status,Remarks
 16.6,Test the quote-to-cash flow for cash and credit customers,Completed,Automated tests pass
 16.7,Test No VAT behaviour,Completed,Automated tests pass
 16.8,Test pricing,Completed,Automated tests pass
-16.9,"Test templates, approvals, roles, dashboards and reports",In Progress,Roles tested; print/email review pending
+16.9,"Test templates, approvals, roles, dashboards and reports",In Progress,Roles tested on staging (screens 43/43); client document formats compared with client samples; client review pending
 16.10,Fix defects and run final regression test,In Progress,
 17.1,Prepare training material and user guides,Not Started,
 17.2,"Session 1 (online): Order Form, quotation and sales",Not Started,

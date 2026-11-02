@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Client formats ("Saman - InvoiceTemplate / Delivery Challan / Packing Slip"):
+         logo + company details + document box, Bill To / Deliver To, bordered tables,
+         yellow footer blocks. -->
+    <!-- A4 with small margins and no header space, like the client's documents -->
+    <record id="paperformat_mariwan_client" model="report.paperformat">
+        <field name="name">A4 - Meriwan documents</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">8</field>
+        <field name="margin_bottom">8</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <template id="mariwan_client_style">
+        <style>
+            .mw-doc { font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif; font-size: 14.5px; color: #111; line-height: 1.3; }
+            .mw-frame { background-color: #f1f3f7; padding: 18px; }
+            .mw-card { background-color: #fff; border: 1px solid #e2e5eb; border-radius: 12px; padding: 30px 26px 22px 26px; }
+            .mw-doc table.mw-plain { border-collapse: separate; border-spacing: 0; border: 0 none !important; }
+            .mw-doc table.mw-plain > tbody, .mw-doc table.mw-plain > tbody > tr, .mw-doc table.mw-plain > tbody > tr > td, .mw-doc table.mw-plain > tr > td { border: 0 none !important; }
+            .mw-doc table.mw-grid { width: 100%; border-collapse: collapse; margin-bottom: 26px; table-layout: fixed; }
+            .mw-doc table.mw-grid th, .mw-doc table.mw-grid td { border: 2px solid #111; padding: 6px 5px; text-align: center; vertical-align: middle; }
+            .mw-doc table.mw-grid th { font-weight: bold; }
+            .mw-doc .mw-yellow, .mw-doc table.mw-grid td.mw-yellow { background-color: #fff59a; }
+            .mw-doc .mw-box { width: 100%; border-collapse: collapse; border: 2px solid #111; }
+            .mw-doc .mw-box td { padding: 7px 8px; font-size: 12.5px; border: none; }
+            .mw-doc .mw-box .mw-title { border-bottom: 2px solid #111; text-align: center; font-size: 17px; font-weight: bold; padding: 9px; }
+            .mw-doc .mw-label { font-weight: bold; }
+            .mw-doc .mw-company { font-size: 14.5px; line-height: 1.3; }
+            .mw-doc .mw-company b { font-weight: bold; }
+        </style>
+    </template>
+
+    <!-- Header: logo | company details | document box. rows = [(label, value)] -->
+    <template id="mariwan_client_header">
+        <table class="mw-plain o_ignore_layout_styling" style="width: 100%; margin-bottom: 36px;">
+            <tr>
+                <td style="width: 30%; vertical-align: top; padding-top: 8px;">
+                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="width: 225px;" alt="Logo"/>
+                </td>
+                <td class="mw-company" style="width: 34%; vertical-align: top;">
+                    <t t-if="company.company_details" t-out="company.company_details"/>
+                    <t t-else="">
+                        <b t-out="company.name"/><br/>
+                        <span t-out="company.partner_id._display_address(without_name=True, separator=', ')"/><br/>
+                        <t t-if="company.phone"><b>Phone:</b> <span t-out="company.phone"/><br/></t>
+                        <t t-if="company.website"><b>Website:</b> <span t-out="company.website"/><br/></t>
+                        <t t-if="company.email"><b>E-Mail:</b> <span t-out="company.email"/></t>
+                    </t>
+                </td>
+                <td style="width: 36%; vertical-align: top;">
+                    <table class="mw-box o_ignore_layout_styling" style="border: 1.5px solid #222;">
+                        <tr><td colspan="2" class="mw-title" t-out="title"/></tr>
+                        <tr t-foreach="rows" t-as="row">
+                            <t t-set="divider" t-value="'border-top: 2px solid #111 !important;' if row_index >= 2 else ''"/>
+                            <td t-att-style="'width: 50%;' + divider" t-out="row[0]"/>
+                            <td t-att-style="divider" t-out="row[1] or ''"/>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </template>
+
+    <template id="mariwan_client_addresses">
+        <table class="mw-plain o_ignore_layout_styling" style="width: 100%; margin-bottom: 26px;">
+            <tr>
+                <td style="width: 50%; vertical-align: bottom; padding-right: 20px;">
+                    <span class="mw-label" t-out="bill_label"/><br/>
+                    <span t-out="bill_partner.name"/><br/>
+                    <span t-out="bill_partner._display_address(without_name=True, separator=',')"/>
+                    <t t-if="show_phone and bill_partner.phone"><br/><span t-out="bill_partner.phone"/></t>
+                </td>
+                <td style="width: 50%; vertical-align: top;">
+                    <span class="mw-label" t-out="ship_label"/><br/>
+                    <span t-out="ship_partner.name"/><br/>
+                    <span t-out="ship_partner._display_address(without_name=True, separator=',')"/>
+                </td>
+            </tr>
+        </table>
+    </template>
+
+    <!-- ============================== INVOICE ============================== -->
+    <template id="report_mariwan_invoice_document">
+        <t t-call="web.basic_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda l: l.display_type == 'product')"/>
+            <t t-set="hs_codes" t-value="', '.join(sorted(set(c for c in lines.product_id.mapped('hs_code') if c)))"/>
+            <t t-set="foreign" t-value="o.currency_id != company.currency_id"/>
+            <t t-call="mariwan_reports.mariwan_client_style"/>
+            <div class="page mw-doc"><div class="mw-frame"><div class="mw-card">
+                <t t-set="title" t-value="'CREDIT NOTE' if o.move_type == 'out_refund' else 'INVOICE'"/>
+                <t t-set="rows" t-value="[
+                    ('Invoice Date', o.invoice_date and o.invoice_date.strftime('%d-%b-%Y')),
+                    ('Order Number', o.invoice_origin),
+                    ('HS-CODE', hs_codes)]"/>
+                <t t-call="mariwan_reports.mariwan_client_header"/>
+                <t t-set="show_phone" t-value="False"/>
+                <t t-set="bill_label" t-value="'Bill To:'"/>
+                <t t-set="bill_partner" t-value="o.partner_id"/>
+                <t t-set="ship_label" t-value="'Deliver To:'"/>
+                <t t-set="ship_partner" t-value="o.partner_shipping_id or o.partner_id"/>
+                <t t-call="mariwan_reports.mariwan_client_addresses"/>
+                <table class="mw-grid o_ignore_layout_styling">
+                    <tr><th style="width: 20%;">P.O. NUMBER</th><th style="width: 20%;">F.O.B.</th><th style="width: 20%;">SALESPERSON</th><th style="width: 20%;">H.S. CODE</th><th style="width: 20%;">TERMS</th></tr>
+                    <tr>
+                        <td t-out="o.ref or ''"/>
+                        <td t-out="o.invoice_incoterm_id.code or 'Other'"/>
+                        <td t-out="o.invoice_user_id.name or ''"/>
+                        <td t-out="hs_codes"/>
+                        <td t-out="o.invoice_payment_term_id.name or ''"/>
+                    </tr>
+                </table>
+                <table class="mw-grid o_ignore_layout_styling">
+                    <tr><th style="width: 18%;">PART NUMBER</th><th style="width: 40%;">DESCRIPTION</th><th style="width: 12%;">QUANTITY</th><th style="width: 12%;">UNIT PRICE</th><th style="width: 18%;">EXTENDED PRICE</th></tr>
+                    <tr t-foreach="lines" t-as="line">
+                        <t t-set="code" t-value="line.product_id.default_code"/>
+                        <td t-out="code or ''"/>
+                        <td t-out="(code + ' - ' + line.product_id.name) if code else (line.product_id.name or line.name)"/>
+                        <td t-out="'%g' % line.quantity"/>
+                        <td t-out="'{:,.2f}'.format(line.price_unit)"/>
+                        <td t-out="'{:,.2f}'.format(line.price_subtotal)"/>
+                    </tr>
+                </table>
+                <table class="mw-grid o_ignore_layout_styling">
+                    <tr>
+                        <td class="mw-yellow" style="width: 79%;">No adjustments allowed for short shipments unless notified within 24 hrs</td>
+                        <td class="mw-yellow mw-label" style="width: 11%; text-align: left;">TOTAL</td>
+                        <td class="mw-yellow" style="width: 10%; text-align: right; vertical-align: middle;"><span t-out="'{:,.2f}'.format(o.amount_untaxed)"/></td>
+                    </tr>
+                    <tr>
+                        <td class="mw-yellow">All returns subject to 15% handling charge</td>
+                        <td class="mw-yellow"/>
+                        <td class="mw-yellow"/>
+                    </tr>
+                    <tr>
+                        <td class="mw-yellow">Goods must not be returned without our authorization</td>
+                        <td class="mw-yellow mw-label" style="text-align: left;">FINAL</td>
+                        <td class="mw-yellow mw-label" style="text-align: right;">
+                            <span t-out="'{:,.2f}'.format(o.amount_total)"/>
+                            <t t-if="foreign"> <span t-out="o.currency_id.name"/></t></td>
+                    </tr>
+                </table>
+                </div></div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_mariwan_invoice">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="mariwan_reports.report_mariwan_invoice_document" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_mariwan_invoice" model="ir.actions.report">
+        <field name="name">Invoice (Meriwan)</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mariwan_reports.report_mariwan_invoice</field>
+        <field name="print_report_name">(object._get_report_base_filename())</field>
+        <field name="domain">[('move_type', 'in', ('out_invoice', 'out_refund'))]</field>
+        <field name="is_invoice_report">True</field>
+        <field name="paperformat_id" ref="paperformat_mariwan_client"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="group_ids" eval="[(4, ref('account.group_account_invoice')), (4, ref('account.group_account_readonly'))]"/>
+    </record>
+
+    <!-- ========================== DELIVERY CHALLAN ========================== -->
+    <template id="report_mariwan_delivery_challan_document">
+        <t t-call="web.basic_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="sale" t-value="o.sudo().sale_id"/>
+            <t t-set="moves" t-value="o.move_ids.filtered(lambda m: m.state != 'cancel')"/>
+            <t t-call="mariwan_reports.mariwan_client_style"/>
+            <div class="page mw-doc"><div class="mw-frame"><div class="mw-card">
+                <t t-set="title" t-value="'DELIVERY CHALLAN'"/>
+                <t t-set="rows" t-value="[
+                    ('Date', (o.date_done or o.scheduled_date).strftime('%d-%b-%Y')),
+                    ('Order Number', o.origin)]"/>
+                <t t-call="mariwan_reports.mariwan_client_header"/>
+                <t t-set="show_phone" t-value="False"/>
+                <t t-set="bill_label" t-value="'Bill To:'"/>
+                <t t-set="bill_partner" t-value="sale.partner_invoice_id or o.partner_id"/>
+                <t t-set="ship_label" t-value="'Deliver To:'"/>
+                <t t-set="ship_partner" t-value="o.partner_id"/>
+                <t t-call="mariwan_reports.mariwan_client_addresses"/>
+                <table class="mw-grid o_ignore_layout_styling">
+                    <tr><th style="width: 18%;">PART NUMBER</th><th style="width: 40%;">DESCRIPTION</th><th style="width: 12%;">HS-CODE</th><th style="width: 12%;">QUANTITY</th><th style="width: 18%;">UNIT</th></tr>
+                    <tr t-foreach="moves" t-as="move">
+                        <td t-out="move.product_id.default_code or ''"/>
+                        <td t-out="move.product_id.name"/>
+                        <td t-out="move.product_id.hs_code or ''"/>
+                        <td style="width: 12%;" t-out="'%g' % (move.quantity if o.state == 'done' else move.product_uom_qty)"/>
+                        <td t-out="move.uom_id.name"/>
+                    </tr>
+                </table>
+                <table class="mw-grid o_ignore_layout_styling">
+                    <tr>
+                        <td style="width: 38%;">TOTAL NUMBER OF PACKAGE: <span t-out="o.mariwan_package_count"/></td>
+                        <td style="width: 38%;">TOTAL WEIGHT: <span t-out="'%g' % (o.shipping_weight or o.weight)"/> <span t-out="o.weight_uom_name"/></td>
+                        <td/>
+                    </tr>
+                </table>
+                <table class="mw-grid o_ignore_layout_styling" style="font-size: 13px;">
+                    <tr><td class="mw-yellow" style="padding: 12px 30px 8px 30px; text-align: left;">
+                        <table class="mw-plain o_ignore_layout_styling" style="width: 100%;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top; text-align: left;">
+                                    <div style="margin-bottom: 14px;">Received By:</div>
+                                    <table class="mw-plain o_ignore_layout_styling" style="margin-left: 30px;">
+                                        <tr><td style="text-align: right; padding: 4px;">Name:</td>
+                                            <td style="padding: 4px; text-align: left;" t-out="o.mariwan_receiver_name or ''"/></tr>
+                                        <tr><td style="text-align: right; padding: 4px;">Date:</td>
+                                            <td style="padding: 4px; text-align: left;" t-out="o.date_done and o.date_done.strftime('%d-%b-%Y') or ''"/></tr>
+                                        <tr><td style="text-align: right; padding: 4px; height: 90px;">Signature:</td>
+                                            <td style="padding: 4px;">
+                                                <img t-if="o.signature" t-att-src="image_data_uri(o.signature)" style="max-height: 80px; max-width: 160px;"/></td></tr>
+                                    </table>
+                                </td>
+                                <td style="vertical-align: top; text-align: left;">
+                                    <div style="margin-bottom: 14px;">Delivered By:</div>
+                                    <table class="mw-plain o_ignore_layout_styling" style="margin-left: 30px;">
+                                        <tr><td style="text-align: right; padding: 4px;">Name:</td>
+                                            <td style="padding: 4px; text-align: left;" t-out="o.user_id.name or ''"/></tr>
+                                        <tr><td style="text-align: right; padding: 4px;">Date:</td>
+                                            <td style="padding: 4px; text-align: left;" t-out="(o.date_done or o.scheduled_date).strftime('%d-%b-%Y')"/></tr>
+                                        <tr><td style="text-align: right; padding: 4px; height: 90px;">Signature:</td>
+                                            <td/></tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="text-align: center; padding-top: 30px;">Company Stamp:</div>
+                    </td></tr>
+                </table>
+                </div></div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_mariwan_delivery_challan">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="mariwan_reports.report_mariwan_delivery_challan_document" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_mariwan_delivery_challan" model="ir.actions.report">
+        <field name="name">Delivery Challan</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mariwan_reports.report_mariwan_delivery_challan</field>
+        <field name="print_report_name">'Delivery Challan - %s' % (object.name or '').replace('/', '_')</field>
+        <field name="paperformat_id" ref="paperformat_mariwan_client"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- ============================ PACKING SLIP ============================ -->
+    <template id="report_mariwan_packing_slip_document">
+        <t t-call="web.basic_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="sale" t-value="o.sudo().sale_id"/>
+            <t t-set="invoice" t-value="sale.invoice_ids.filtered(lambda m: m.state == 'posted' and m.move_type == 'out_invoice')[:1]"/>
+            <t t-set="moves" t-value="o.move_ids.filtered(lambda m: m.state != 'cancel')"/>
+            <t t-set="qty" t-value="lambda m: m.quantity if o.state == 'done' else m.product_uom_qty"/>
+            <t t-set="origins" t-value="', '.join(sorted(set(c for c in moves.product_id.country_of_origin.mapped('name') if c)))"/>
+            <t t-call="mariwan_reports.mariwan_client_style"/>
+            <div class="page mw-doc"><div class="mw-frame"><div class="mw-card">
+                <t t-set="title" t-value="'Packing Slip'"/>
+                <t t-set="rows" t-value="[
+                    ('Invoice Date', invoice.invoice_date and invoice.invoice_date.strftime('%d-%b-%Y')),
+                    ('Order Number', o.origin)]"/>
+                <t t-call="mariwan_reports.mariwan_client_header"/>
+                <t t-set="bill_label" t-value="'BILL TO:'"/>
+                <t t-set="bill_partner" t-value="sale.partner_invoice_id or o.partner_id"/>
+                <t t-set="show_phone" t-value="True"/>
+                <t t-set="ship_label" t-value="'SHIP TO:'"/>
+                <t t-set="ship_partner" t-value="o.partner_id"/>
+                <t t-call="mariwan_reports.mariwan_client_addresses"/>
+                <table class="mw-grid o_ignore_layout_styling">
+                    <tr><th style="width: 20%;">P.O. NUMBER</th><th style="width: 20%;">F.O.B.</th><th style="width: 20%;">SALESPERSON</th><th style="width: 20%;">SHIP VIA</th><th style="width: 20%;">TERMS</th></tr>
+                    <tr>
+                        <td t-out="sale.client_order_ref or ''"/>
+                        <td t-out="sale.incoterm.code or 'Other'"/>
+                        <td t-out="sale.user_id.name or ''"/>
+                        <td t-out="o.carrier_id.name or ''"/>
+                        <td t-out="sale.payment_term_id.name or ''"/>
+                    </tr>
+                </table>
+                <table class="mw-grid o_ignore_layout_styling">
+                    <tr><th style="width: 16%;">PART NUMBER</th><th style="width: 60%;">DESCRIPTION</th><th style="width: 12%;">HS-CODE</th><th style="width: 12%;">QUANTITY</th></tr>
+                    <tr t-foreach="moves" t-as="move">
+                        <td t-out="move.product_id.default_code or ''"/>
+                        <td t-out="move.product_id.name"/>
+                        <td t-out="move.product_id.hs_code or ''"/>
+                        <td style="width: 12%;" t-out="'%g' % qty(move)"/>
+                    </tr>
+                </table>
+                <table class="mw-plain o_ignore_layout_styling" style="width: 100%;">
+                    <tr>
+                        <td style="width: 38%; vertical-align: top;">
+                            <table class="mw-grid o_ignore_layout_styling">
+                                <tr><td class="mw-yellow">TOTAL NUMBER OF PACKAGE: <span t-out="o.mariwan_package_count"/> PLT</td></tr>
+                                <tr><td class="mw-yellow">TOTAL WEIGHT: <span t-out="'%g' % (o.shipping_weight or o.weight)"/> Kgs</td></tr>
+                                <tr><td class="mw-yellow">COUNTRY OF ORIGIN: <span t-out="origins"/></td></tr>
+                            </table>
+                        </td>
+                        <td style="width: 18%;"/>
+                        <td style="vertical-align: top;">
+                            <table class="mw-grid o_ignore_layout_styling">
+                                <tr>
+                                    <td>Total Quantity Orderd ( PCS ):</td>
+                                    <td style="width: 28%;" t-out="'%g' % sum(qty(m) for m in moves)"/>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                </div></div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_mariwan_packing_slip">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="mariwan_reports.report_mariwan_packing_slip_document" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_mariwan_packing_slip" model="ir.actions.report">
+        <field name="name">Packing Slip</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mariwan_reports.report_mariwan_packing_slip</field>
+        <field name="print_report_name">'Packing Slip - %s' % (object.name or '').replace('/', '_')</field>
+        <field name="paperformat_id" ref="paperformat_mariwan_client"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- The client's invoice is the default for customer invoices (standard per-journal setting). -->
+    <function model="ir.actions.report" name="_mariwan_set_default_invoice_report" eval="[[]]"/>
+</odoo>

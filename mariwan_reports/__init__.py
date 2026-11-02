@@ -1,3 +1,6 @@
+from . import models
+
+
 def post_init_hook(env):
     """Task 12.1: standard company layout on A4, amount in words on invoices."""
     company = env.ref('base.main_company')
