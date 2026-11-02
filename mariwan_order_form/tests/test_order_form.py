@@ -69,6 +69,22 @@ class TestMariwanOrderForm(TransactionCase):
         line = self._form(self.cash_customer, 1, empty).line_ids
         self.assertEqual(line.availability_status, 'not_available')
 
+    def test_warnings_short_stock_and_credit_stop(self):
+        # B4: suggest 'Order for Stock' only when the free qty is short
+        self.assertFalse(self._form(self.cash_customer, 4).line_ids._onchange_suggest_fulfilment_type())
+        warning = self._form(self.cash_customer, 15).line_ids._onchange_suggest_fulfilment_type()
+        self.assertIn('Order for Stock', warning['warning']['message'])
+        # A2: credit customer above the limit is warned on selection
+        self.assertFalse(self.env['mariwan.order.form'].new(
+            {'partner_id': self.credit_customer.id})._onchange_partner_credit_stop())
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice', 'partner_id': self.credit_customer.id,
+            'invoice_line_ids': [Command.create({'name': 'Old sale', 'quantity': 1, 'price_unit': 1500.0})]})
+        invoice.action_post()
+        warning = self.env['mariwan.order.form'].new(
+            {'partner_id': self.credit_customer.id})._onchange_partner_credit_stop()
+        self.assertEqual(warning['warning']['title'], 'Customer on credit stop')
+
     # 16.3 ------------------------------------------------------------------
     def test_reservation_and_conflicts(self):
         form_a = self._form(self.cash_customer, 6)

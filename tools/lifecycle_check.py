@@ -261,6 +261,12 @@ def customer_return():
         call('warehouse', 'stock.move', 'write', [mv['id']], {'product_uom_qty': orig})
     call('warehouse', 'stock.picking', 'action_confirm', [ret])
     call('warehouse', 'stock.picking', 'action_assign', [ret])
+    try:
+        validate_picking('warehouse', ret)
+        raise AssertionError('return validated without a reason')
+    except xmlrpc.client.Fault as e:
+        assert 'return reason' in e.faultString, e.faultString
+    call('warehouse', 'stock.picking', 'write', [ret], {'mariwan_condition_remarks': 'Wrong part ordered by customer'})
     return validate_picking('warehouse', ret), qty(P1)['qty_available']
 
 

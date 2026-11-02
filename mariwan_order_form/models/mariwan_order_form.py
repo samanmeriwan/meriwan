@@ -107,6 +107,22 @@ class MariwanOrderForm(models.Model):
             form.payment_term_id = commercial.property_payment_term_id \
                 or self.env.ref('account.account_payment_term_immediate', raise_if_not_found=False)
 
+    @api.onchange('partner_id')
+    def _onchange_partner_credit_stop(self):
+        # Flow A2: a credit customer on credit stop is warned before continuing.
+        if self.partner_id and self.customer_type == 'credit' and (
+                self.partner_overdue > 0 or (self.credit_limit and self.partner_balance >= self.credit_limit)):
+            return {'warning': {
+                'title': self.env._("Customer on credit stop"),
+                'message': self.env._(
+                    "%(customer)s: outstanding %(balance)s, overdue %(overdue)s, credit limit %(limit)s. "
+                    "The sales order cannot be confirmed without a Finance Manager override.",
+                    customer=self.partner_id.display_name,
+                    balance=self.currency_id.format(self.partner_balance),
+                    overdue=self.currency_id.format(self.partner_overdue),
+                    limit=self.currency_id.format(self.credit_limit)),
+            }}
+
     @api.depends('partner_id')
     def _compute_partner_shipping_id(self):
         for form in self:

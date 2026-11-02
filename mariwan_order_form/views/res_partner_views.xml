@@ -14,6 +14,7 @@
             </xpath>
             <xpath expr="//group[@name='purchase']" position="inside">
                 <field name="mariwan_vendor_type"/>
+                <field name="mariwan_dispatch_contact_id" invisible="mariwan_vendor_type != 'dropship'"/>
             </xpath>
         </field>
     </record>

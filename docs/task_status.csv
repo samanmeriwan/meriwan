@@ -22,11 +22,11 @@ ID,Task,Status,Remarks
 3.7,Configure physical inventory and adjustments,Completed,"Standard physical inventory; ""Inventory Reason"" asked on apply; scrap reasons (damaged in transit / warehouse, expired, customer return, sample); approval via Approvals category"
 4.1,Design and configure the Product form,Completed,"Brand, Model, Default Fulfilment, Min stock added; HS code/origin/weight/vendors standard"
 4.2,Design and configure the Customer form,Completed,"Customer type, region, trade licence added; credit limit, terms, addresses, balance standard"
-4.3,Design and configure the Vendor form,Completed,"Vendor type added; currency, terms, bank, vendor price list standard"
+4.3,Design and configure the Vendor form,Completed,"Vendor type added; currency, terms, bank, vendor price list standard Dispatch contact on drop-ship vendors receives the drop-ship instruction (V7)."
 4.4,Prepare import templates for master data,Completed,"Import templates with instructions, dropdowns and duplicate/missing checks (docs/data_load/templates)"
 5.1,Build the Order Form header (form view),Completed,"Header, availability indicator, totals, smart buttons"
 5.2,Build the Order Form product lines,Completed,Line fields per sheet; cost fields hidden without cost access
-5.3,Build the real-time availability check,Completed,Real-time on hand / reserved / free / incoming; tested
+5.3,Build the real-time availability check,Completed,Real-time on hand / reserved / free / incoming; tested Suggests Order for Stock (Import) when free qty is short (B4).
 5.4,Build the shortage flag and reservation-details popup,Completed,Shortage flag popup with reservations and incoming POs
 5.5,Build the reservation function,Completed,"Reserve all / line, release, date required, locked to customer; tested"
 5.6,Build fulfilment type handling per line,Completed,From Stock / Import / Drop Ship per line; order type auto (Stock/Import/Drop Ship/Mixed)
@@ -40,12 +40,12 @@ ID,Task,Status,Remarks
 6.1,Implement the stock-sale process,Completed,Tested end to end (reserve > quote > confirm > invoice > pay > deliver > closed)
 6.2,Implement the import-for-stock process (shortage),Completed,Tested: PO > receipt auto-reserves for waiting customer > landed cost updates cost/price
 6.3,Implement the drop-shipping process,Completed,"Tested: standard drop ship RFQ with customer address, dispatch/tracking, delivery, no stock entry"
-6.4,Implement the cash and credit payment rules,Completed,Cash: delivery blocked until paid (full or advance %); credit: limit + overdue block; tested
+6.4,Implement the cash and credit payment rules,Completed,Cash: delivery blocked until paid (full or advance %); credit: limit + overdue block; tested Warning on selecting a customer on credit stop (A2).
 6.5,Implement reservation conflict rules,Completed,Re-assign only by Sales Manager with reason; original form flagged; release on cancel; tested
 6.6,Implement reservation expiry and tentative date alerts,Completed,"Hold-until = date + grace days; daily alert activities, no silent release; tested"
 6.7,Implement validation rules and error messages,Completed,Validation messages per sheet
 6.8,Implement partial fulfilment and split handling,Completed,"Partial reservation + PO for shortage, backorders, mixed orders"
-6.9,"Implement cancellation, return and credit note handling",Completed,Cancel releases/cancels/notifies; returns and credit notes are standard Odoo
+6.9,"Implement cancellation, return and credit note handling",Completed,Cancel releases/cancels/notifies; returns and credit notes are standard Odoo Customer return needs a reason (Condition Remarks) before validation (E3).
 7.1,Configure the manual purchase order flow,Completed,"No automatic POs (no Buy route by default, MTO off); Order Form link and delivery type on PO"
 7.2,Configure import PO details,Completed,"Container, port, ETA, shipping company, B/L; vendor down payment standard"
 7.3,Configure drop-ship PO details,Completed,Standard drop-ship PO with customer address; dispatch date/tracking on vendor shipment

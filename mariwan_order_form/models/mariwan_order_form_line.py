@@ -121,6 +121,19 @@ class MariwanOrderFormLine(models.Model):
         for line in self:
             line.fulfilment_type = line.product_id.mariwan_fulfilment_type or 'stock'
 
+    @api.onchange('product_id', 'product_qty', 'fulfilment_type')
+    def _onchange_suggest_fulfilment_type(self):
+        # B4: suggest (never force) 'Order for Stock' when the free quantity is short.
+        if self.product_id and self.fulfilment_type == 'stock' and \
+                (self.product_uom_id or self.product_id.uom_id).compare(self.product_qty, self.free_qty) > 0:
+            return {'warning': {
+                'type': 'notification',
+                'title': self.env._("Not enough free stock"),
+                'message': self.env._(
+                    "Only %(free)s of %(product)s is free. Consider 'Order for Stock (Import)' for this line.",
+                    free=self.free_qty, product=self.product_id.display_name),
+            }}
+
     @api.depends('product_id')
     def _compute_product_uom_id(self):
         for line in self:

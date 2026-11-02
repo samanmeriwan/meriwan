@@ -64,7 +64,17 @@ class StockPicking(models.Model):
 
     def button_validate(self):
         self._mariwan_check_cash_payment()
+        self._mariwan_check_return_reason()
         return super().button_validate()
+
+    def _mariwan_check_return_reason(self):
+        """Flow E3: a customer return needs a reason (Condition Remarks)."""
+        missing = self.filtered(lambda p: p.picking_type_code == 'incoming' and p.return_id
+                                and not p.mariwan_condition_remarks)
+        if missing:
+            raise UserError(self.env._(
+                "Enter the return reason in Condition Remarks before validating %s.",
+                ', '.join(missing.mapped('name'))))
 
     def _mariwan_check_cash_payment(self):
         """Tasks 6.4 / 10.2 (rule R5): cash customers - delivery released once payment is registered."""

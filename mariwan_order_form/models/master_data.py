@@ -55,6 +55,9 @@ class ResPartner(models.Model):
         ('overseas', 'Overseas Supplier'), ('local', 'Local Supplier'), ('dropship', 'Drop-Ship Vendor'),
     ], 'Vendor Type')
     mariwan_trade_licence = fields.Char('Trade Licence No.')
+    mariwan_dispatch_contact_id = fields.Many2one(
+        'res.partner', 'Dispatch Contact', domain="[('parent_id', '=', id)]",
+        help="Drop-ship vendors: the contact who receives the delivery instructions.")
 
 
 class ResCompany(models.Model):

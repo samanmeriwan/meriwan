@@ -1,6 +1,6 @@
 {
     'name': 'Mariwan - Document Templates',
-    'version': '20.0.1.0.2',
+    'version': '20.0.1.0.3',
     'category': 'Sales/Sales',
     'summary': 'Mariwan print and email templates: Order Form, reservation confirmation, '
                'drop-ship vendor instruction, landed cost sheet, No VAT additions to standard documents',
