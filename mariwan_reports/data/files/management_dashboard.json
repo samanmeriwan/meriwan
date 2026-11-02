@@ -1,0 +1,561 @@
+{
+ "version": "19.3.10",
+ "sheets": [
+  {
+   "id": "sheet1",
+   "name": "Dashboard",
+   "colNumber": 10,
+   "rowNumber": 60,
+   "rows": {},
+   "cols": {},
+   "merges": [],
+   "cells": {},
+   "styles": {},
+   "formats": {},
+   "borders": {},
+   "conditionalFormats": [],
+   "dataValidationRules": [],
+   "figures": [
+    {
+     "id": "c572fd76-8d34-523c-b349-84f5755be2dd",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 0,
+      "y": 0
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "9f7309b7-a5c9-55f7-be11-78a62b4467d5": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "line",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "invoice_date:month"
+          ],
+          "measure": "price_subtotal",
+          "order": null,
+          "resModel": "account.invoice.report",
+          "mode": "line",
+          "cumulatedStart": false
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           "&",
+           [
+            "state",
+            "=",
+            "posted"
+           ],
+           [
+            "move_type",
+            "in",
+            [
+             "out_invoice",
+             "out_refund"
+            ]
+           ]
+          ],
+          "groupBy": [
+           "invoice_date:month"
+          ],
+          "orderBy": []
+         },
+         "cumulatedStart": false
+        },
+        "dataSetStyles": {},
+        "stacked": false,
+        "fillArea": true
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Invoiced Revenue by Month (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "9f7309b7-a5c9-55f7-be11-78a62b4467d5",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "e96cf4b5-406c-5a66-80b5-881aaf30ed90",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 515,
+      "y": 0
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "7417f002-0427-56aa-93df-effab35a6ae1": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "bar",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "partner_id"
+          ],
+          "measure": "price_subtotal",
+          "order": null,
+          "resModel": "account.invoice.report",
+          "mode": "bar"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           "&",
+           [
+            "state",
+            "=",
+            "posted"
+           ],
+           [
+            "move_type",
+            "in",
+            [
+             "out_invoice",
+             "out_refund"
+            ]
+           ]
+          ],
+          "groupBy": [
+           "partner_id"
+          ],
+          "orderBy": []
+         }
+        },
+        "dataSetStyles": {},
+        "stacked": false
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Top Customers (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "7417f002-0427-56aa-93df-effab35a6ae1",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "82b2866d-7e03-5044-a182-d96a2e5a1fc3",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 0,
+      "y": 360
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "d19ac897-0a59-5b85-9cce-b973752c342f": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "bar",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "partner_id"
+          ],
+          "measure": "price_total",
+          "order": null,
+          "resModel": "purchase.report",
+          "mode": "bar"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "state",
+            "in",
+            [
+             "purchase",
+             "done"
+            ]
+           ]
+          ],
+          "groupBy": [
+           "partner_id"
+          ],
+          "orderBy": []
+         }
+        },
+        "dataSetStyles": {},
+        "stacked": false
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Purchases by Vendor (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "d19ac897-0a59-5b85-9cce-b973752c342f",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "14baa8d4-fb85-559b-b2e0-ad965986d5b1",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 515,
+      "y": 360
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "29460484-97d7-595c-80c5-44645b54d07f": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "bar",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "partner_id"
+          ],
+          "measure": "amount_residual",
+          "order": null,
+          "resModel": "account.move",
+          "mode": "bar"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "move_type",
+            "=",
+            "out_invoice"
+           ],
+           [
+            "state",
+            "=",
+            "posted"
+           ],
+           [
+            "payment_state",
+            "in",
+            [
+             "not_paid",
+             "partial"
+            ]
+           ]
+          ],
+          "groupBy": [
+           "partner_id"
+          ],
+          "orderBy": []
+         }
+        },
+        "dataSetStyles": {},
+        "stacked": false
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Open Receivables by Customer (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "29460484-97d7-595c-80c5-44645b54d07f",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "8f7599d4-e74d-5e31-abdd-12e133b7d7f3",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 0,
+      "y": 720
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "6b3bb22b-02c5-5b9a-89b1-d5f9bec3e447": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "bar",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "partner_id"
+          ],
+          "measure": "amount_residual",
+          "order": null,
+          "resModel": "account.move",
+          "mode": "bar"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "move_type",
+            "=",
+            "in_invoice"
+           ],
+           [
+            "state",
+            "=",
+            "posted"
+           ],
+           [
+            "payment_state",
+            "in",
+            [
+             "not_paid",
+             "partial"
+            ]
+           ]
+          ],
+          "groupBy": [
+           "partner_id"
+          ],
+          "orderBy": []
+         }
+        },
+        "dataSetStyles": {},
+        "stacked": false
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Open Payables by Vendor (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "6b3bb22b-02c5-5b9a-89b1-d5f9bec3e447",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "48341200-9389-57ca-b422-4ff52de3caf0",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 515,
+      "y": 720
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "cc4479eb-2bc5-5e4b-87b5-8334db859d2c": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "bar",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "fulfilment_type"
+          ],
+          "measure": "margin_amount",
+          "order": null,
+          "resModel": "mariwan.order.form.line",
+          "mode": "bar"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "order_form_id.state",
+            "!=",
+            "cancel"
+           ]
+          ],
+          "groupBy": [
+           "fulfilment_type"
+          ],
+          "orderBy": []
+         },
+         "actionXmlId": "mariwan_order_form.action_mariwan_order_form_line_analysis"
+        },
+        "dataSetStyles": {},
+        "stacked": false
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Margin by Fulfilment Type (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "cc4479eb-2bc5-5e4b-87b5-8334db859d2c",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "a2296ba8-7402-594f-a0f3-589bb9046dda",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 0,
+      "y": 1080
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "d63c3aae-30f9-5e1e-b334-c7df37726180": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "top",
+        "type": "pie",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "state"
+          ],
+          "measure": "__count",
+          "order": null,
+          "resModel": "mariwan.order.form",
+          "mode": "pie"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [],
+          "groupBy": [
+           "state"
+          ],
+          "orderBy": []
+         },
+         "actionXmlId": "mariwan_order_form.action_mariwan_order_form"
+        },
+        "dataSetStyles": {}
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Order Forms by Status"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "d63c3aae-30f9-5e1e-b334-c7df37726180",
+        "title": "Chart"
+       }
+      ]
+     }
+    }
+   ],
+   "tables": [],
+   "areGridLinesVisible": false,
+   "isVisible": true,
+   "headerGroups": {
+    "ROW": [],
+    "COL": []
+   },
+   "comments": {}
+  }
+ ],
+ "styles": {},
+ "formats": {},
+ "borders": {},
+ "revisionId": "START_REVISION",
+ "uniqueFigureIds": true,
+ "settings": {
+  "locale": {
+   "name": "English (US)",
+   "code": "en_US",
+   "thousandsSeparator": ",",
+   "decimalSeparator": ".",
+   "dateFormat": "mm/dd/yyyy",
+   "timeFormat": "hh:mm:ss",
+   "formulaArgSeparator": ",",
+   "weekStart": 7
+  }
+ },
+ "pivots": {},
+ "pivotNextId": 1,
+ "customTableStyles": {},
+ "namedRanges": {},
+ "globalFilters": [],
+ "lists": {},
+ "listNextId": 1
+}

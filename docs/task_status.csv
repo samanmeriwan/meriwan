@@ -19,7 +19,7 @@ ID,Task,Status,Remarks
 3.4,Configure units of measure and packaging,Completed,"Units, Pieces, Carton, Pallet, Container (+ standard kg, m)"
 3.5,Configure lot and serial tracking,Completed,Lots/serials and expiry enabled; set per product on import
 3.6,Configure reservation behaviour and low-stock visibility,Completed,"Reservations exclude stock from other customers (tested); minimum stock alert only, no auto PO"
-3.7,Configure physical inventory and adjustments,In Progress,Standard physical inventory; adjustment approval via Approvals category; adjustment reasons not added
+3.7,Configure physical inventory and adjustments,Completed,"Standard physical inventory; ""Inventory Reason"" asked on apply; scrap reasons (damaged in transit / warehouse, expired, customer return, sample); approval via Approvals category"
 4.1,Design and configure the Product form,Completed,"Brand, Model, Default Fulfilment, Min stock added; HS code/origin/weight/vendors standard"
 4.2,Design and configure the Customer form,Completed,"Customer type, region, trade licence added; credit limit, terms, addresses, balance standard"
 4.3,Design and configure the Vendor form,Completed,"Vendor type added; currency, terms, bank, vendor price list standard"
@@ -86,11 +86,11 @@ ID,Task,Status,Remarks
 13.2,Create user accounts,In Progress,Test users per role created locally; real user list needed
 13.3,Apply segregation of duties,Completed,"Warehouse no cost/posting, Finance Manager only for lock dates and credit override"
 13.4,Configure password and login security,In Progress,Password minimum 8 characters (standard auth_password_policy); 2FA available per user; enforce for all employees at go-live once outgoing email works
-14.1,Build the Order Form / sales dashboard,In Progress,Order Form pivot/graph/filters and reports; KPI dashboard page not built
+14.1,Build the Order Form / sales dashboard,Completed,"Dashboards app > Mariwan > Order Forms: status, value by month and salesperson, fulfilment type, payment type, reserved stock (Officer, Pricing, Sales Manager)"
 14.2,Build the inventory dashboard,Completed,Standard Inventory dashboard + below-minimum filter
 14.3,Build the purchase and import dashboard,Completed,Standard Purchase dashboard + landed cost variance report
 14.4,Build the accounting dashboard,Completed,Standard Accounting dashboards
-14.5,Build the management dashboard,In Progress,Standard Sales/Accounting dashboards; dedicated management page not built
+14.5,Build the management dashboard,Completed,"Dashboards app > Mariwan > Management: invoiced revenue, top customers, purchases by vendor, open receivables / payables, margin, Order Form status (Sales Manager, Finance)"
 14.6,Configure standard reports,Completed,"Standard financial reports + margin, reservation, drop-ship, override reports"
 15.1,Load master data from the import templates,In Progress,"Client products (1,236), vendors and UAE/GCC prices import files built and loaded on test; 17 items missing cost/price; customers pending"
 15.2,Load opening balances,Not Started,Waiting for opening balances from client

@@ -1,0 +1,447 @@
+{
+ "version": "19.3.10",
+ "sheets": [
+  {
+   "id": "sheet1",
+   "name": "Dashboard",
+   "colNumber": 10,
+   "rowNumber": 60,
+   "rows": {},
+   "cols": {},
+   "merges": [],
+   "cells": {},
+   "styles": {},
+   "formats": {},
+   "borders": {},
+   "conditionalFormats": [],
+   "dataValidationRules": [],
+   "figures": [
+    {
+     "id": "a2296ba8-7402-594f-a0f3-589bb9046dda",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 0,
+      "y": 0
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "d63c3aae-30f9-5e1e-b334-c7df37726180": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "top",
+        "type": "pie",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "state"
+          ],
+          "measure": "__count",
+          "order": null,
+          "resModel": "mariwan.order.form",
+          "mode": "pie"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [],
+          "groupBy": [
+           "state"
+          ],
+          "orderBy": []
+         },
+         "actionXmlId": "mariwan_order_form.action_mariwan_order_form"
+        },
+        "dataSetStyles": {}
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Order Forms by Status"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "d63c3aae-30f9-5e1e-b334-c7df37726180",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "cbbb6d36-bc52-592d-9dfa-06d1e5e8a23f",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 515,
+      "y": 0
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "e47e4f30-1e16-5db0-920c-ce6833012450": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "bar",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "date:month"
+          ],
+          "measure": "amount_total",
+          "order": null,
+          "resModel": "mariwan.order.form",
+          "mode": "bar"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "state",
+            "!=",
+            "cancel"
+           ]
+          ],
+          "groupBy": [
+           "date:month"
+          ],
+          "orderBy": []
+         },
+         "actionXmlId": "mariwan_order_form.action_mariwan_order_form"
+        },
+        "dataSetStyles": {},
+        "stacked": false
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Order Value by Month (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "e47e4f30-1e16-5db0-920c-ce6833012450",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "d034a679-3110-5863-9dba-128e911c2743",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 0,
+      "y": 360
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "6b9338b3-28ff-5691-865b-d09aea9f2770": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "bar",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "user_id"
+          ],
+          "measure": "amount_total",
+          "order": null,
+          "resModel": "mariwan.order.form",
+          "mode": "bar"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "state",
+            "!=",
+            "cancel"
+           ]
+          ],
+          "groupBy": [
+           "user_id"
+          ],
+          "orderBy": []
+         },
+         "actionXmlId": "mariwan_order_form.action_mariwan_order_form"
+        },
+        "dataSetStyles": {},
+        "stacked": false
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Order Value by Salesperson (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "6b9338b3-28ff-5691-865b-d09aea9f2770",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "a59eaae9-9f1e-5530-95c0-de910bafbbc3",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 515,
+      "y": 360
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "c13ef96d-8271-57a0-8113-92adecf76fe2": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "top",
+        "type": "pie",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "fulfilment_type"
+          ],
+          "measure": "price_subtotal",
+          "order": null,
+          "resModel": "mariwan.order.form.line",
+          "mode": "pie"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "order_form_id.state",
+            "!=",
+            "cancel"
+           ]
+          ],
+          "groupBy": [
+           "fulfilment_type"
+          ],
+          "orderBy": []
+         },
+         "actionXmlId": "mariwan_order_form.action_mariwan_order_form_line_analysis"
+        },
+        "dataSetStyles": {}
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Sales by Fulfilment Type (AED)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "c13ef96d-8271-57a0-8113-92adecf76fe2",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "80581bad-9485-57df-8bc4-936a7cfd5710",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 0,
+      "y": 720
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "d01a4a09-fc52-5cf1-88ef-65200fd30671": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "top",
+        "type": "pie",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "payment_type"
+          ],
+          "measure": "__count",
+          "order": null,
+          "resModel": "mariwan.order.form",
+          "mode": "pie"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "state",
+            "!=",
+            "cancel"
+           ]
+          ],
+          "groupBy": [
+           "payment_type"
+          ],
+          "orderBy": []
+         },
+         "actionXmlId": "mariwan_order_form.action_mariwan_order_form"
+        },
+        "dataSetStyles": {}
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Order Forms by Payment Type"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "d01a4a09-fc52-5cf1-88ef-65200fd30671",
+        "title": "Chart"
+       }
+      ]
+     }
+    },
+    {
+     "id": "db22e71c-7b71-5263-a052-a121ca11ff50",
+     "col": 0,
+     "row": 0,
+     "offset": {
+      "x": 515,
+      "y": 720
+     },
+     "width": 495,
+     "height": 340,
+     "tag": "carousel",
+     "data": {
+      "chartDefinitions": {
+       "896c2d1a-806a-569c-8cac-5d1f51d3c74e": {
+        "title": {
+         "text": ""
+        },
+        "legendPosition": "none",
+        "type": "bar",
+        "humanize": true,
+        "dataSource": {
+         "type": "odoo",
+         "metaData": {
+          "groupBy": [
+           "product_id"
+          ],
+          "measure": "quantity",
+          "order": null,
+          "resModel": "mariwan.reservation",
+          "mode": "bar"
+         },
+         "searchParams": {
+          "comparison": null,
+          "context": {},
+          "domain": [
+           [
+            "state",
+            "=",
+            "active"
+           ]
+          ],
+          "groupBy": [
+           "product_id"
+          ],
+          "orderBy": []
+         },
+         "actionXmlId": "mariwan_order_form.action_mariwan_reservation"
+        },
+        "dataSetStyles": {},
+        "stacked": false
+       }
+      },
+      "title": {
+       "fontSize": 21,
+       "bold": true,
+       "color": "#01666B",
+       "text": "Reserved Stock by Product (Qty)"
+      },
+      "items": [
+       {
+        "type": "chart",
+        "chartId": "896c2d1a-806a-569c-8cac-5d1f51d3c74e",
+        "title": "Chart"
+       }
+      ]
+     }
+    }
+   ],
+   "tables": [],
+   "areGridLinesVisible": false,
+   "isVisible": true,
+   "headerGroups": {
+    "ROW": [],
+    "COL": []
+   },
+   "comments": {}
+  }
+ ],
+ "styles": {},
+ "formats": {},
+ "borders": {},
+ "revisionId": "START_REVISION",
+ "uniqueFigureIds": true,
+ "settings": {
+  "locale": {
+   "name": "English (US)",
+   "code": "en_US",
+   "thousandsSeparator": ",",
+   "decimalSeparator": ".",
+   "dateFormat": "mm/dd/yyyy",
+   "timeFormat": "hh:mm:ss",
+   "formulaArgSeparator": ",",
+   "weekStart": 7
+  }
+ },
+ "pivots": {},
+ "pivotNextId": 1,
+ "customTableStyles": {},
+ "namedRanges": {},
+ "globalFilters": [],
+ "lists": {},
+ "listNextId": 1
+}

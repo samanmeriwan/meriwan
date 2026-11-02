@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tasks 14.1 / 14.5: standard Dashboards app (Odoo charts on live data). -->
+    <record id="dashboard_group_mariwan" model="spreadsheet.dashboard.group">
+        <field name="name">Mariwan</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="dashboard_order_form" model="spreadsheet.dashboard">
+        <field name="name">Order Forms</field>
+        <field name="spreadsheet_binary_data" type="bytes" file="mariwan_reports/data/files/order_form_dashboard.json"/>
+        <field name="main_data_model_ids" eval="[(4, ref('mariwan_order_form.model_mariwan_order_form'))]"/>
+        <field name="dashboard_group_id" ref="dashboard_group_mariwan"/>
+        <field name="group_ids" eval="[Command.link(ref('mariwan_order_form.group_officer')), Command.link(ref('mariwan_order_form.group_pricing_manager'))]"/>
+        <field name="sequence">10</field>
+        <field name="is_published">True</field>
+    </record>
+
+    <record id="dashboard_management" model="spreadsheet.dashboard">
+        <field name="name">Management</field>
+        <field name="spreadsheet_binary_data" type="bytes" file="mariwan_reports/data/files/management_dashboard.json"/>
+        <field name="main_data_model_ids" eval="[(4, ref('account.model_account_move'))]"/>
+        <field name="dashboard_group_id" ref="dashboard_group_mariwan"/>
+        <field name="group_ids" eval="[Command.link(ref('mariwan_order_form.group_sales_manager')), Command.link(ref('mariwan_order_form.group_finance_manager'))]"/>
+        <field name="sequence">20</field>
+        <field name="is_published">True</field>
+    </record>
+</odoo>

@@ -1,6 +1,6 @@
 {
     'name': 'Mariwan - UAE Company Configuration',
-    'version': '20.0.1.0.1',
+    'version': '20.0.1.0.2',
     'category': 'Accounting/Localizations',
     'summary': 'Mariwan Trading Ltd: UAE company, AED, No VAT, chart of accounts, journals, warehouse and inventory setup',
     'description': """
@@ -41,6 +41,7 @@ Settings > Technical > Mariwan > Re-apply configuration):
         'data/approval_category_data.xml',
         'data/ir_actions_server.xml',
         'data/company_data.xml',
+        'data/stock_scrap_reason_data.xml',
     ],
     'post_init_hook': 'post_init_hook',
     'installable': True,
