@@ -109,8 +109,9 @@ class MariwanOrderForm(models.Model):
     @api.onchange('partner_id')
     def _onchange_partner_credit_stop(self):
         # Flow A2: a credit customer on credit stop is warned before continuing.
+        to_invoice = self.partner_id.commercial_partner_id.sudo().with_company(self.company_id).credit_to_invoice
         if self.partner_id and self.customer_type == 'credit' and (
-                self.partner_overdue > 0 or (self.credit_limit and self.partner_balance >= self.credit_limit)):
+                self.partner_overdue > 0 or (self.credit_limit and self.partner_balance + to_invoice >= self.credit_limit)):
             return {'warning': {
                 'title': self.env._("Customer on credit stop"),
                 'message': self.env._(

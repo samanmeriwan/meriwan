@@ -202,6 +202,12 @@ class TestMariwanOrderForm(TransactionCase):
         order.action_mariwan_override_credit()
         form.action_confirm_order()
         self.assertEqual(order.state, 'sale')
+        # R6: the confirmed order is not invoiced yet but still counts against the limit
+        small = self._form(self.credit_customer, 1)  # 230 alone is within 1000
+        small.action_check_availability()
+        small.action_create_quotation()
+        with self.assertRaises(UserError):
+            small.action_confirm_order()
         order.picking_ids.button_validate()  # credit: released on confirmation
 
     # 16.4 -------------------------------------------------------------------

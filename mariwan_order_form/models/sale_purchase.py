@@ -58,10 +58,14 @@ class SaleOrder(models.Model):
         ]).mapped('amount_residual'))
         if overdue > 0:
             return self.env._("the customer has overdue invoices (%s)", self.currency_id.format(overdue))
-        limit = partner.with_company(self.company_id).credit_limit
-        if limit and partner.credit + self.amount_total > limit:
-            return self.env._("the credit limit %(limit)s would be exceeded (balance %(balance)s + order %(order)s)",
-                              limit=self.currency_id.format(limit), balance=self.currency_id.format(partner.credit),
+        partner = partner.with_company(self.company_id)
+        limit = partner.credit_limit
+        # Same exposure as Odoo's own credit warning: open invoices + confirmed orders not yet invoiced.
+        balance = partner.credit + partner.credit_to_invoice
+        if limit and balance + self.amount_total > limit:
+            return self.env._("the credit limit %(limit)s would be exceeded (balance %(balance)s including "
+                              "orders not yet invoiced + order %(order)s)",
+                              limit=self.currency_id.format(limit), balance=self.currency_id.format(balance),
                               order=self.currency_id.format(self.amount_total))
         return False
 

@@ -121,7 +121,13 @@ def pay(user, move):
 
 
 CASH = partner('Sample Cash Customer')
-CREDIT = partner('Sample Credit Customer (GCC)')
+# Own credit customer each run: lifecycle_check leaves the sample one with an overridden,
+# not yet invoiced order that (correctly) counts against its credit limit.
+CREDIT = call('admin', 'res.partner', 'create', {
+    'name': 'SCENARIO TEST Credit Customer', 'is_company': True, 'customer_rank': 1,
+    'mariwan_customer_type': 'credit', 'credit_limit': 50000,
+    'property_product_pricelist': call('admin', 'res.partner', 'read', [partner('Sample Credit Customer (GCC)')],
+                                       ['property_product_pricelist'])[0]['property_product_pricelist'][0]})
 POWERSTOP = partner('Powerstop')
 USD = call('admin', 'res.currency', 'search', [('name', '=', 'USD')])[0]
 
