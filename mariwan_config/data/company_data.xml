@@ -3,4 +3,6 @@
     <!-- Task 2.1: company details from the client's templates; runs on install and upgrade,
          fills only empty / default values. -->
     <function model="res.company" name="_mariwan_setup_company_details" eval="[[]]"/>
+    <!-- Tasks 2.4 / 3.3: cost of goods sold to the Cost of Goods Sold account -->
+    <function model="res.company" name="_mariwan_setup_cogs_account" eval="[[]]"/>
 </odoo>

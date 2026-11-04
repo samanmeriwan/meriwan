@@ -1,6 +1,6 @@
 {
     'name': 'Mariwan - UAE Company Configuration',
-    'version': '20.0.1.0.2',
+    'version': '20.0.1.0.3',
     'category': 'Accounting/Localizations',
     'summary': 'Mariwan Trading Ltd: UAE company, AED, No VAT, chart of accounts, journals, warehouse and inventory setup',
     'description': """

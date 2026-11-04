@@ -125,6 +125,7 @@ class ResCompany(models.Model):
         company._mariwan_setup_settings()
         company._mariwan_setup_warehouse()
         company._mariwan_setup_categories()
+        company._mariwan_setup_cogs_account()
         company._mariwan_setup_landed_cost_types()
         company._mariwan_setup_pricelists()
         return True
@@ -417,6 +418,24 @@ class ResCompany(models.Model):
         categ = self._mariwan_ensure('categ_landed_costs', 'product.category',
                                      {'name': 'Landed Costs'}, [('name', '=', 'Landed Costs')])
         categ.with_company(self).property_account_expense_categ_id = clearing
+
+    def _mariwan_setup_cogs_account(self):
+        """Task 2.4 / 3.3: cost of goods sold posts to the client's Cost of Goods Sold account
+        (the default chart uses 600000, renamed Other Expense). Runs on install and upgrade."""
+        self = self or self.env.ref('base.main_company')
+        cogs = self._mariwan_ref('account_cogs') or self._mariwan_account('500000')
+        if not cogs:
+            return False
+        self._mariwan_bind_xmlid('account_cogs', cogs)
+        other_expense = self._mariwan_ref('account_other_expense')
+        # Stocked goods only: the Expenses / Services categories keep the company default expense account.
+        categs = [self._mariwan_ref(xmlid) for xmlid, _name in MARIWAN_CATEGORIES]
+        categs.append(self.env.ref('product.product_category_goods', raise_if_not_found=False))
+        for categ in filter(None, categs):
+            categ = categ.with_company(self)
+            if categ.property_account_expense_categ_id in (other_expense, self.env['account.account']):
+                categ.property_account_expense_categ_id = cogs
+        return True
 
     def _mariwan_setup_landed_cost_types(self):
         """Task 8.1: landed cost types post to Landed Cost Clearing."""
