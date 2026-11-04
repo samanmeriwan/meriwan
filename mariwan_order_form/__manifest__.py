@@ -1,6 +1,6 @@
 {
     'name': 'Mariwan - Order Form',
-    'version': '20.0.1.0.8',
+    'version': '20.0.1.0.9',
     'category': 'Sales/Sales',
     'summary': 'Customer request Order Form: real-time availability, shortage flag, reservations, '
                'manual import / drop-ship POs, landed cost based pricing',

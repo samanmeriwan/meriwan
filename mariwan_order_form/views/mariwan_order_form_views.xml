@@ -101,7 +101,7 @@
                         </group>
                         <group name="order">
                             <field name="date" readonly="not can_edit_date"/>
-                            <field name="user_id"/>
+                            <field name="user_id" readonly="not can_edit_salesperson" force_save="1"/>
                             <field name="order_type"/>
                             <field name="warehouse_id" groups="stock.group_stock_multi_warehouses"/>
                             <field name="payment_type"/>

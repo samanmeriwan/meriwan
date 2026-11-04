@@ -58,6 +58,7 @@ class MariwanOrderForm(models.Model):
     state = fields.Selection(ORDER_FORM_STATES, default='draft', required=True, tracking=True, copy=False, index=True)
     line_ids = fields.One2many('mariwan.order.form.line', 'order_form_id', 'Lines', copy=True)
     can_edit_date = fields.Boolean(compute='_compute_can_edit_date')
+    can_edit_salesperson = fields.Boolean(compute='_compute_can_edit_date')
     reservation_flagged = fields.Boolean(
         'Reservation re-assigned', copy=False, tracking=True,
         help="Set when a Sales Manager re-assigned stock reserved for this customer to another order.")
@@ -131,6 +132,7 @@ class MariwanOrderForm(models.Model):
     def _compute_can_edit_date(self):
         is_manager = self.env.user.has_group('mariwan_order_form.group_sales_manager')
         self.can_edit_date = is_manager
+        self.can_edit_salesperson = is_manager
 
     @api.depends('partner_id')
     def _compute_partner_balance(self):
@@ -228,7 +230,11 @@ class MariwanOrderForm(models.Model):
     # ------------------------------------------------------------------
     @api.model_create_multi
     def create(self, vals_list):
+        is_manager = self.env.su or self.env.user.has_group('mariwan_order_form.group_sales_manager')
         for vals in vals_list:
+            if not is_manager:
+                # The salesperson is the logged-in user; only the Sales Manager assigns someone else.
+                vals['user_id'] = self.env.uid
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('mariwan.order.form') or 'New'
         forms = super().create(vals_list)
@@ -236,8 +242,11 @@ class MariwanOrderForm(models.Model):
         return forms
 
     def write(self, vals):
-        if 'date' in vals and not self.env.su and not self.env.user.has_group('mariwan_order_form.group_sales_manager'):
-            raise UserError(self.env._("Only the Sales Manager can change the Order Form date."))
+        if not self.env.su and not self.env.user.has_group('mariwan_order_form.group_sales_manager'):
+            if 'date' in vals:
+                raise UserError(self.env._("Only the Sales Manager can change the Order Form date."))
+            if 'user_id' in vals and self.filtered(lambda f: f.user_id.id != vals['user_id']):
+                raise UserError(self.env._("Only the Sales Manager can change the salesperson."))
         if self.filtered(lambda f: f.state in ('closed', 'cancel')) and set(vals) - {
                 'message_main_attachment_id', 'state', 'reservation_flagged'}:
             raise UserError(self.env._("Closed or cancelled Order Forms are read-only."))

@@ -60,6 +60,22 @@ class TestMariwanOrderForm(TransactionCase):
         with self.assertRaises(Exception), self.cr.savepoint():
             self._form(self.cash_customer, 0)
 
+    def test_salesperson_is_logged_in_user(self):
+        officer = self.env['res.users'].create({
+            'name': 'Officer', 'login': 'officer_sp_test',
+            'group_ids': [Command.set(self.env.ref('mariwan_order_form.group_officer').ids)],
+        })
+        form = self.env['mariwan.order.form'].with_user(officer).create({
+            'partner_id': self.cash_customer.id, 'user_id': self.env.user.id,
+            'line_ids': [Command.create({'product_id': self.product.id, 'product_qty': 1})],
+        })
+        self.assertEqual(form.user_id, officer)
+        self.assertFalse(form.can_edit_salesperson)
+        with self.assertRaises(UserError):
+            form.write({'user_id': self.env.user.id})
+        form.with_user(self.env.user).write({'user_id': self.env.user.id})  # Sales Manager may reassign
+        self.assertEqual(form.user_id, self.env.user)
+
     def test_availability_statuses(self):
         line = self._form(self.cash_customer, 4).line_ids
         self.assertEqual((line.on_hand_qty, line.free_qty, line.availability_status), (10, 10, 'available'))
