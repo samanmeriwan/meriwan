@@ -137,7 +137,8 @@
                                     <field name="product_qty"/>
                                     <field name="product_uom_id" groups="uom.group_uom" optional="show"/>
                                     <field name="on_hand_qty" optional="show"/>
-                                    <field name="reserved_other_qty" optional="show"/>
+                                    <field name="reserved_other_qty" optional="show" widget="mariwan_reserved_link"
+                                           options="{'method': 'action_view_reserved_others'}"/>
                                     <field name="free_qty"/>
                                     <field name="incoming_qty" optional="show"/>
                                     <field name="incoming_date" optional="hide"/>
@@ -150,7 +151,8 @@
                                             invisible="availability_status not in ('partial', 'not_available') and not reserved_other_qty"/>
                                     <field name="shortage_qty"/>
                                     <field name="reserve_qty" optional="show"/>
-                                    <field name="reserved_qty"/>
+                                    <field name="reserved_qty" widget="mariwan_reserved_link"
+                                           options="{'method': 'action_view_reserved_own'}"/>
                                     <field name="reservation_status" optional="show"/>
                                     <button name="action_reserve_line" type="object" icon="fa-lock" title="Reserve Line"
                                             invisible="fulfilment_type == 'dropship' or parent.state in ('draft', 'confirmed', 'in_delivery', 'delivered', 'closed', 'cancel')"/>

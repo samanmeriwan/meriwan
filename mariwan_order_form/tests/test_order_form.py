@@ -138,6 +138,28 @@ class TestMariwanOrderForm(TransactionCase):
         form_a.action_cancel()
         self.assertFalse(form_a.reservation_ids.filtered(lambda r: r.state == 'active'))
 
+    def test_reserved_detail_popup(self):
+        form_a = self._form(self.cash_customer, 3)
+        form_a.action_reserve_all()
+        so = self.env['sale.order'].create({
+            'partner_id': self.other_customer.id,
+            'order_line': [Command.create({'product_id': self.product.id, 'product_uom_qty': 2})],
+        })
+        so.action_confirm()
+        line_c = self._form(self.credit_customer, 1).line_ids
+        self.assertEqual(line_c.reserved_other_qty, 5)
+
+        detail = self.env['mariwan.reserved.detail'].browse(line_c.action_view_reserved_others()['res_id'])
+        self.assertEqual(detail.total_qty, 5)
+        rows = {(r.source, r.partner_id, r.quantity) for r in detail.detail_ids}
+        self.assertEqual(rows, {('hold', self.cash_customer, 3), ('delivery', self.other_customer, 2)})
+        hold_row = detail.detail_ids.filtered(lambda r: r.source == 'hold')
+        self.assertEqual((hold_row.order_form_id, hold_row.delivery_date), (form_a, self.delivery_date))
+        self.assertEqual(detail.detail_ids.filtered(lambda r: r.source == 'delivery').sale_order, so.name)
+
+        own = self.env['mariwan.reserved.detail'].browse(form_a.line_ids.action_view_reserved_own()['res_id'])
+        self.assertEqual(own.detail_ids.mapped('reference'), form_a.reservation_ids.mapped('name'))
+
     def test_reservation_requires_date(self):
         form = self._form(self.cash_customer, 1)
         form.write({'delivery_date': False})

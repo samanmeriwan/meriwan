@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="mariwan_order_form.ReservedLinkField">
+        <a t-if="this.props.record.data[this.props.name]" href="#" title="Who is this stock reserved for?"
+           t-on-click="this.onClick" t-out="this.formattedValue"/>
+        <span t-else="" t-out="this.formattedValue"/>
+    </t>
+</templates>

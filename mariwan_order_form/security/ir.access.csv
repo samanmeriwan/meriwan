@@ -13,6 +13,8 @@ access_reservation_officer,Reservation: officer on own forms,mariwan.reservation
 access_reservation_manager,Reservation: managers all,mariwan.reservation,group_sales_manager,cru,
 access_reservation_admin,Reservation: administrator,mariwan.reservation,group_admin,crud,
 access_availability_popup_user,Availability popup,mariwan.availability.popup,base.group_user,crud,
+access_reserved_detail_user,Reserved stock details,mariwan.reserved.detail,base.group_user,crud,
+access_reserved_detail_line_user,Reserved stock detail lines,mariwan.reserved.detail.line,base.group_user,crud,
 access_reservation_reassign_manager,Reservation re-assign,mariwan.reservation.reassign,group_sales_manager,crud,
 access_landed_cost_accountant,Landed Cost: accountant,stock.landed.cost,group_accountant,crud,
 access_landed_cost_lines_accountant,Landed Cost Lines: accountant,stock.landed.cost.lines,group_accountant,crud,

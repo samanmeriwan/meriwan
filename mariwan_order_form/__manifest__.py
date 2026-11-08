@@ -1,6 +1,6 @@
 {
     'name': 'Mariwan - Order Form',
-    'version': '20.0.1.0.9',
+    'version': '20.0.1.1.0',
     'category': 'Sales/Sales',
     'summary': 'Customer request Order Form: real-time availability, shortage flag, reservations, '
                'manual import / drop-ship POs, landed cost based pricing',
@@ -31,6 +31,7 @@ credit limit, lock dates, approvals, reports).
         'data/ir_cron_data.xml',
         'wizard/mariwan_availability_popup_views.xml',
         'wizard/mariwan_reservation_reassign_views.xml',
+        'wizard/mariwan_reserved_detail_views.xml',
         'views/mariwan_order_form_views.xml',
         'views/mariwan_order_form_line_views.xml',
         'views/mariwan_reservation_views.xml',
@@ -43,6 +44,11 @@ credit limit, lock dates, approvals, reports).
         'views/res_config_settings_views.xml',
         'views/mariwan_menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'mariwan_order_form/static/src/**/*',
+        ],
+    },
     'installable': True,
     'application': True,
 }
