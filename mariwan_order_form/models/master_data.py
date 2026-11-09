@@ -1,4 +1,5 @@
 from odoo import fields, models
+from odoo.exceptions import UserError
 
 from .mariwan_order_form_line import FULFILMENT_TYPES
 
@@ -20,6 +21,49 @@ class ProductTemplate(models.Model):
         help="Alert / dashboard only - never creates a purchase order.")
     mariwan_below_min = fields.Boolean('Below Minimum Stock', compute='_compute_mariwan_below_min',
                                        search='_search_mariwan_below_min')
+    # Task 9.1: the client's per-item market prices, kept in the UAE / GCC Market price lists
+    # (the price the Order Form and quotation use), shown and edited on the product.
+    mariwan_uae_price = fields.Float(
+        'UAE Price', digits='Product Price', compute='_compute_mariwan_market_prices',
+        inverse='_inverse_mariwan_uae_price', help="Fixed price in the UAE Market price list (UAE customers).")
+    mariwan_gcc_price = fields.Float(
+        'GCC Price', digits='Product Price', compute='_compute_mariwan_market_prices',
+        inverse='_inverse_mariwan_gcc_price', help="Fixed price in the GCC Market price list (GCC customers).")
+
+    def _mariwan_market_item(self, xmlid):
+        pricelist = self.env.ref(f'mariwan_config.{xmlid}', raise_if_not_found=False)
+        if not pricelist or not self.id:
+            return pricelist, self.env['product.pricelist.item']
+        return pricelist, self.env['product.pricelist.item'].sudo().search([
+            ('pricelist_id', '=', pricelist.id), ('applied_on', '=', '1_product'),
+            ('product_tmpl_id', '=', self.id), ('compute_price', '=', 'fixed')], limit=1)
+
+    def _compute_mariwan_market_prices(self):
+        for product in self:
+            product.mariwan_uae_price = product._mariwan_market_item('pricelist_uae')[1].fixed_price
+            product.mariwan_gcc_price = product._mariwan_market_item('pricelist_gcc')[1].fixed_price
+
+    def _inverse_mariwan_uae_price(self):
+        self._mariwan_set_market_price('pricelist_uae', 'mariwan_uae_price')
+
+    def _inverse_mariwan_gcc_price(self):
+        self._mariwan_set_market_price('pricelist_gcc', 'mariwan_gcc_price')
+
+    def _mariwan_set_market_price(self, xmlid, fname):
+        if not self.env.su and not self.env.user.has_group('mariwan_order_form.group_pricing_manager'):
+            raise UserError(self.env._("Only the Pricing Manager can change the UAE / GCC prices."))
+        for product in self:
+            pricelist, item = product._mariwan_market_item(xmlid)
+            price = product[fname]
+            if not pricelist:
+                continue
+            if item and price:
+                item.fixed_price = price
+            elif item:
+                item.unlink()  # no price: the price list falls back to its default rule
+            elif price:
+                item.create({'pricelist_id': pricelist.id, 'applied_on': '1_product', 'product_tmpl_id': product.id,
+                             'compute_price': 'fixed', 'fixed_price': price})
 
     def _compute_mariwan_below_min(self):
         for product in self:

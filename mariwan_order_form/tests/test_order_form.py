@@ -332,3 +332,27 @@ class TestMariwanOrderForm(TransactionCase):
         self.assertEqual(line.price_unit, 280.0)
         self.assertAlmostEqual(line.margin_percent, 40.0)
         self.assertEqual(line.margin_amount, 160.0)
+
+    def test_product_market_prices_match_quotation(self):
+        """UAE / GCC Price on the product = the price on the Order Form and its quotation."""
+        template = self.product.product_tmpl_id
+        template.write({'mariwan_uae_price': 310.0, 'mariwan_gcc_price': 290.0})
+        gcc_customer = self.env['res.partner'].create({
+            'name': 'GCC Customer', 'is_company': True, 'mariwan_customer_type': 'cash',
+            'property_product_pricelist': self.env.ref('mariwan_config.pricelist_gcc').id})
+        for partner, price in ((self.cash_customer, 310.0), (gcc_customer, 290.0)):
+            form = self._form(partner, 1)
+            self.assertEqual(form.pricelist_id, partner.property_product_pricelist)
+            self.assertEqual(form.line_ids.price_unit, price)
+            form.action_check_availability()
+            form.action_create_quotation()
+            self.assertEqual(form.sale_order_ids.order_line.price_unit, price)
+        template.mariwan_gcc_price = 0.0  # removes the fixed GCC price
+        template.invalidate_recordset(['mariwan_gcc_price'])
+        self.assertEqual(template.mariwan_gcc_price, 0.0)
+        officer = self.env['res.users'].create({
+            'name': 'Officer', 'login': 'officer_price_test',
+            'group_ids': [Command.set(self.env.ref('mariwan_order_form.group_officer').ids)],
+        })
+        with self.assertRaises(UserError):
+            template.with_user(officer).mariwan_uae_price = 1.0

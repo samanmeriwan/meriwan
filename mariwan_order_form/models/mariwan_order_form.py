@@ -66,6 +66,8 @@ class MariwanOrderForm(models.Model):
     # Customer credit block (A3)
     customer_type = fields.Selection(related='partner_id.commercial_partner_id.mariwan_customer_type')
     credit_limit = fields.Float(related='partner_id.commercial_partner_id.credit_limit')
+    # Shows where the line prices come from (UAE / GCC Market).
+    pricelist_id = fields.Many2one(related='partner_id.property_product_pricelist', string='Price List')
     partner_balance = fields.Monetary('Outstanding Balance', compute='_compute_partner_balance')
     partner_overdue = fields.Monetary('Overdue Amount', compute='_compute_partner_balance')
 

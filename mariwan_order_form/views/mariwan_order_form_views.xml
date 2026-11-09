@@ -106,6 +106,8 @@
                             <field name="warehouse_id" groups="stock.group_stock_multi_warehouses"/>
                             <field name="payment_type"/>
                             <field name="payment_term_id" required="payment_type == 'credit'"/>
+                            <field name="pricelist_id" readonly="1" options="{'no_open': True}"
+                                   invisible="not partner_id"/>
                             <field name="delivery_date"/>
                             <field name="availability" widget="badge"
                                    decoration-success="availability == 'green'"
