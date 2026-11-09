@@ -160,6 +160,28 @@ class TestMariwanOrderForm(TransactionCase):
         own = self.env['mariwan.reserved.detail'].browse(form_a.line_ids.action_view_reserved_own()['res_id'])
         self.assertEqual(own.detail_ids.mapped('reference'), form_a.reservation_ids.mapped('name'))
 
+    def test_stock_by_category_report(self):
+        self._form(self.cash_customer, 3).action_reserve_all()
+        so = self.env['sale.order'].create({
+            'partner_id': self.other_customer.id,
+            'order_line': [Command.create({'product_id': self.product.id, 'product_uom_qty': 2})],
+        })
+        so.action_confirm()
+        self.env.flush_all()
+        Report = self.env['mariwan.stock.category.report']
+        row = Report.search([('product_id', '=', self.product.id)])
+        self.assertRecordValues(row, [{
+            'categ_id': self.categ.id, 'on_hand_qty': 10, 'delivery_reserved_qty': 2, 'hold_qty': 3,
+            'reserved_qty': 5, 'free_qty': 5, 'sale_value': 10 * self.product.list_price,
+            'stock_value': 10 * self.product.standard_price,
+        }])
+        before = Report.formatted_read_group([('categ_id', '=', self.categ.id), ('product_id', '!=', self.product.id)],
+                                             ['categ_id'], ['on_hand_qty:sum', 'reserved_qty:sum'])
+        totals = Report.formatted_read_group([('categ_id', '=', self.categ.id)], ['categ_id'],
+                                             ['on_hand_qty:sum', 'reserved_qty:sum'])
+        others = (before[0]['on_hand_qty:sum'], before[0]['reserved_qty:sum']) if before else (0, 0)
+        self.assertEqual((totals[0]['on_hand_qty:sum'], totals[0]['reserved_qty:sum']), (others[0] + 10, others[1] + 5))
+
     def test_reservation_requires_date(self):
         form = self._form(self.cash_customer, 1)
         form.write({'delivery_date': False})

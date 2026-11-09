@@ -4,3 +4,4 @@ from . import mariwan_reservation
 from . import master_data
 from . import sale_purchase
 from . import stock
+from . import stock_category_report
