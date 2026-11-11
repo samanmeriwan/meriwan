@@ -266,7 +266,7 @@ class TestMariwanOrderForm(TransactionCase):
         self.assertIn(payment.name, log.body)
         self.assertIn('100.00', log.body)
         payment.action_cancel()
-        self.assertTrue(invoice.message_ids.filtered(lambda m: 'cancelled' in (m.body or '')))
+        self.assertEqual(len(invoice.message_ids.filtered(lambda m: 'cancelled' in (m.body or ''))), 1)
 
     def test_credit_limit_block(self):
         form = self._form(self.credit_customer, 6)  # 6 x 230 = 1380 > 1000

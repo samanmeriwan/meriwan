@@ -13,7 +13,8 @@ class AccountPayment(models.Model):
         """Payments stay on the Payments button of the invoice and are also written in its log.
         :param invoices: {payment: invoices} or the invoices to use when a payment has no link (yet / any more)."""
         for payment in self:
-            moves = invoices.get(payment) if isinstance(invoices, dict) else payment._mariwan_invoices()
+            moves = invoices.get(payment, self.env['account.move']) if isinstance(invoices, dict) \
+                else payment._mariwan_invoices()
             if not moves and invoices and not isinstance(invoices, dict):
                 moves = invoices.filtered(
                     lambda m: m.commercial_partner_id == payment.partner_id.commercial_partner_id)
@@ -35,19 +36,22 @@ class AccountPayment(models.Model):
                 move.message_post(body=body)
 
     def action_cancel(self):
-        invoices = {payment: payment._mariwan_invoices() for payment in self}  # the link is dropped by super
+        # Before super: it drops the link to the invoices. Payments already in that state are not logged again.
+        invoices = {payment: payment._mariwan_invoices() for payment in self if payment.state not in ('canceled', 'rejected')}
         res = super().action_cancel()
         self._mariwan_log_on_invoices('cancelled', invoices)
         return res
 
     def action_reject(self):
-        invoices = {payment: payment._mariwan_invoices() for payment in self}  # the link is dropped by super
+        # Before super: it drops the link to the invoices. Payments already in that state are not logged again.
+        invoices = {payment: payment._mariwan_invoices() for payment in self if payment.state not in ('canceled', 'rejected')}
         res = super().action_reject()
         self._mariwan_log_on_invoices('cancelled', invoices)
         return res
 
     def action_draft(self):
-        invoices = {payment: payment._mariwan_invoices() for payment in self}  # the link is dropped by super
+        # Before super: it drops the link to the invoices. Payments already in that state are not logged again.
+        invoices = {payment: payment._mariwan_invoices() for payment in self if payment.state not in ('draft',)}
         res = super().action_draft()
         self._mariwan_log_on_invoices('draft', invoices)
         return res
