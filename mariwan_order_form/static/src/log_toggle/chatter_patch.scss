@@ -1,0 +1,26 @@
+// Side log hidden: only the arrow button stays, the form takes the freed width.
+.o-mail-Form-chatter.o-aside:has(.o-mariwan-logToggle.o-collapsed) {
+    width: 2.5rem;
+    min-width: 0;
+    flex-grow: 0;
+}
+
+// ... and the form is no longer capped to leave room for the log.
+.o_form_sheet_bg:has(+ .o-mail-Form-chatter.o-aside .o-mariwan-logToggle.o-collapsed) {
+    max-width: none;
+}
+
+.o-mail-Chatter:has(.o-mariwan-logToggle.o-collapsed) {
+    overflow: hidden !important;
+
+    .o-mail-Chatter-content,
+    .o-mail-Chatter-top > :not(.o-mail-Chatter-topbar),
+    .o-mail-Chatter-topbar > :not(.o-mariwan-logToggle) {
+        display: none !important;
+    }
+
+    .o-mail-Chatter-topbar {
+        justify-content: center;
+        overflow: hidden !important;
+    }
+}

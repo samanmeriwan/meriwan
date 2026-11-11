@@ -252,6 +252,22 @@ class TestMariwanOrderForm(TransactionCase):
         form._update_progress()
         self.assertEqual(form.state, 'closed')
 
+    def test_payment_logged_on_invoice(self):
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice', 'partner_id': self.cash_customer.id,
+            'invoice_line_ids': [Command.create({'product_id': self.product.id, 'quantity': 1, 'price_unit': 300.0,
+                                                 'tax_ids': [Command.clear()]})],
+        })
+        invoice.action_post()
+        payment = self.env['account.payment.register'].with_context(
+            active_model='account.move', active_ids=invoice.ids).create({'amount': 100.0})._create_payments()
+        log = invoice.message_ids.filtered(lambda m: 'registered' in (m.body or ''))
+        self.assertEqual(len(log), 1)
+        self.assertIn(payment.name, log.body)
+        self.assertIn('100.00', log.body)
+        payment.action_cancel()
+        self.assertTrue(invoice.message_ids.filtered(lambda m: 'cancelled' in (m.body or '')))
+
     def test_credit_limit_block(self):
         form = self._form(self.credit_customer, 6)  # 6 x 230 = 1380 > 1000
         form.action_check_availability()

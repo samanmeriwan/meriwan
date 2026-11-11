@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="mail.Chatter" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o-mail-Chatter-topbar')]" position="inside">
+            <button t-if="this.webChatterProps.isChatterAside" type="button"
+                    class="o-mariwan-logToggle btn btn-link px-1 d-print-none"
+                    t-att-class="{ 'o-collapsed': this.mariwanLog.collapsed }"
+                    t-att-title="this.mariwanLog.collapsed ? 'Show log' : 'Hide log'"
+                    t-on-click="() => this.mariwanToggleLog()">
+                <i class="oi oi-fw" t-att-data-icon="this.mariwanLog.collapsed ? 'keyboard_double_arrow_left' : 'keyboard_double_arrow_right'" role="img"/>
+            </button>
+        </xpath>
+    </t>
+</templates>
