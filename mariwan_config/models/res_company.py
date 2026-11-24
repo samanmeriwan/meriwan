@@ -120,6 +120,7 @@ class ResCompany(models.Model):
         company._mariwan_setup_accounts()
         company._mariwan_setup_journals()
         company._mariwan_setup_payment_methods()
+        company._mariwan_setup_payment_accounts()
         company._mariwan_setup_currencies()
         company._mariwan_setup_reconcile_models()
         company._mariwan_setup_settings()
@@ -312,6 +313,20 @@ class ResCompany(models.Model):
                 ]
                 if commands:
                     journal.write({field: commands})
+
+    def _mariwan_setup_payment_accounts(self):
+        """Tasks 2.6 / 2.9: outstanding accounts on the bank / cash payment methods. Without them Odoo creates
+        payments with no journal entry, so they never reduce the invoice. Fills empty ones only."""
+        self = self or self.env.ref('base.main_company')
+        chart = self.env['account.chart.template'].with_company(self)
+        for field, xmlid in (('inbound_payment_method_line_ids', 'account_journal_payment_debit_account_id'),
+                             ('outbound_payment_method_line_ids', 'account_journal_payment_credit_account_id')):
+            account = chart.ref(xmlid, raise_if_not_found=False)
+            for journal_xmlid in ('journal_bank_aed', 'journal_bank_usd', 'journal_cash', 'journal_petty_cash'):
+                journal = self._mariwan_ref(journal_xmlid)
+                if account and journal:
+                    journal[field].filtered(lambda line: not line.payment_account_id).payment_account_id = account
+        return True
 
     def _mariwan_setup_currencies(self):
         """Task 2.8: vendor currencies with daily live rates (CBUAE provider)."""

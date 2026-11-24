@@ -265,6 +265,9 @@ class TestMariwanOrderForm(TransactionCase):
         self.assertEqual(len(log), 1)
         self.assertIn(payment.name, log.body)
         self.assertIn('100.00', log.body)
+        # The payment has a journal entry and reduces the invoice.
+        self.assertTrue(payment.move_id)
+        self.assertEqual((invoice.amount_residual, invoice.payment_state), (200.0, 'partial'))
         payment.action_cancel()
         self.assertEqual(len(invoice.message_ids.filtered(lambda m: 'cancelled' in (m.body or ''))), 1)
 

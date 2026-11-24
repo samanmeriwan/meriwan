@@ -5,4 +5,6 @@
     <function model="res.company" name="_mariwan_setup_company_details" eval="[[]]"/>
     <!-- Tasks 2.4 / 3.3: cost of goods sold to the Cost of Goods Sold account -->
     <function model="res.company" name="_mariwan_setup_cogs_account" eval="[[]]"/>
+    <!-- Tasks 2.6 / 2.9: payments post to the outstanding accounts and reconcile with the invoice -->
+    <function model="res.company" name="_mariwan_setup_payment_accounts" eval="[[]]"/>
 </odoo>
