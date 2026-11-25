@@ -326,6 +326,37 @@ class TestMariwanOrderForm(TransactionCase):
         self.assertEqual(orders.mapped('mariwan_payment_status'), ['paid', 'paid'])
         self.assertTrue(all(orders.mapped('mariwan_delivery_released')))
 
+    def test_full_return_reverses_cogs(self):
+        for parts in ((5,), (2, 3)):
+            order = self.env['sale.order'].create({'partner_id': self.other_customer.id, 'order_line': [Command.create({
+                'product_id': self.product.id, 'product_uom_qty': 5, 'price_unit': 300.0, 'tax_ids': [Command.clear()]})]})
+            order.action_confirm()
+            delivery = order.picking_ids
+            delivery.action_assign()
+            delivery.move_ids.picked = True
+            delivery.button_validate()
+            invoice = order._create_invoices()
+            invoice.action_post()
+            for qty in parts:
+                back = self.env['stock.picking'].browse(delivery.action_return()['res_id'])
+                back.move_ids.product_uom_qty = qty
+                back.mariwan_condition_remarks = 'Returned'
+                back.action_confirm()
+                back.move_ids.quantity = qty
+                back.move_ids.picked = True
+                back.button_validate()
+                self.assertEqual(back.state, 'done')
+                wizard = self.env['account.move.reversal'].with_context(
+                    active_model='account.move', active_ids=invoice.ids).create({
+                        'journal_id': invoice.journal_id.id, 'reason': 'Return'})
+                wizard.refund_moves()
+                wizard.new_move_ids.invoice_line_ids.quantity = qty
+                wizard.new_move_ids.action_post()
+            lines = order.invoice_ids.line_ids.filtered(lambda l: l.display_type == 'cogs')
+            for account in lines.account_id:
+                self.assertAlmostEqual(sum(lines.filtered(lambda l: l.account_id == account).mapped('balance')), 0.0)
+            self.assertEqual((order.mariwan_payment_status, order.mariwan_amount_paid), ('not_paid', 0.0))
+
     def test_credit_limit_block(self):
         form = self._form(self.credit_customer, 6)  # 6 x 230 = 1380 > 1000
         form.action_check_availability()
