@@ -10,8 +10,15 @@ class SaleOrder(models.Model):
     mariwan_payment_type = fields.Selection([('cash', 'Cash'), ('credit', 'Credit')], 'Payment Type',
                                             compute='_compute_mariwan_payment_type', store=True, readonly=False)
     mariwan_credit_override = fields.Boolean('Credit Block Overridden', copy=False, readonly=True, tracking=True)
-    mariwan_amount_paid = fields.Monetary('Amount Paid', compute='_compute_mariwan_payment')
-    mariwan_delivery_released = fields.Boolean('Delivery Released', compute='_compute_mariwan_payment')
+    # sudo: salespeople see the payment status without access to the invoices
+    mariwan_amount_paid = fields.Monetary('Amount Paid', compute='_compute_mariwan_payment', compute_sudo=True)
+    mariwan_delivery_released = fields.Boolean('Delivery Released', compute='_compute_mariwan_payment',
+                                               compute_sudo=True)
+    mariwan_payment_status = fields.Selection(
+        [('not_paid', 'Not Paid'), ('partial', 'Partially Paid'), ('paid', 'Paid')], 'Payment Status',
+        compute='_compute_mariwan_payment', compute_sudo=True,
+        help="Payments applied to the invoices of this order, compared with the order total.")
+    mariwan_payment_count = fields.Integer(compute='_compute_mariwan_payment_count', compute_sudo=True)
 
     @api.depends('partner_id')
     def _compute_mariwan_payment_type(self):
@@ -27,17 +34,47 @@ class SaleOrder(models.Model):
             return self.currency_id.round(self.amount_total * self.company_id.mariwan_cash_advance_percent / 100.0)
         return self.amount_total
 
+    def _mariwan_paid_on_invoice(self, invoice):
+        """Amount paid on the invoice for this order: an invoice of several orders is shared between them."""
+        self.ensure_one()
+        # Payments without journal entry (journals without outstanding account) do not reduce the residual.
+        pending = sum(invoice.matched_payment_ids.filtered(
+            lambda p: not p.move_id and p.state in ('paid', 'reconciled')).mapped('amount'))
+        paid = invoice.amount_total - invoice.amount_residual + min(pending, invoice.amount_residual)
+        lines = invoice.invoice_line_ids.filtered(lambda l: l.display_type == 'product')
+        own_lines = lines.filtered(lambda l: self in l.sale_line_ids.order_id)
+        total = sum(lines.mapped('price_total'))
+        if own_lines != lines and total:
+            paid = self.currency_id.round(paid * sum(own_lines.mapped('price_total')) / total)
+        return -paid if invoice.move_type == 'out_refund' else paid
+
     @api.depends('invoice_ids.payment_state', 'invoice_ids.amount_residual', 'amount_total')
     def _compute_mariwan_payment(self):
         for order in self:
-            invoices = order.invoice_ids.filtered(lambda m: m.state == 'posted')
-            # 'in_payment': paid, waiting for the bank statement match (residual not reduced yet)
-            paid = sum((m.amount_total if m.payment_state in ('paid', 'in_payment')
-                        else m.amount_total - m.amount_residual) * (-1 if m.move_type == 'out_refund' else 1)
-                       for m in invoices)
+            paid = sum(order._mariwan_paid_on_invoice(invoice)
+                       for invoice in order.invoice_ids if invoice.state == 'posted')
             order.mariwan_amount_paid = paid
             order.mariwan_delivery_released = order.mariwan_payment_type != 'cash' or \
                 order.currency_id.compare_amounts(paid, order._mariwan_required_payment()) >= 0
+            if order.currency_id.compare_amounts(paid, 0.0) <= 0:
+                order.mariwan_payment_status = 'not_paid'
+            elif order.currency_id.compare_amounts(paid, order.amount_total) < 0:
+                order.mariwan_payment_status = 'partial'
+            else:
+                order.mariwan_payment_status = 'paid'
+
+    def _mariwan_payments(self):
+        """Payments of the invoices of the order (the standard button only counts online transactions)."""
+        return self.invoice_ids.reconciled_payment_ids.filtered(lambda p: p.state not in ('canceled', 'rejected'))
+
+    @api.depends('invoice_ids.reconciled_payment_ids.state')
+    def _compute_mariwan_payment_count(self):
+        for order in self:
+            order.mariwan_payment_count = len(order._mariwan_payments())
+
+    def action_mariwan_view_payments(self):
+        return self._mariwan_payments()._get_records_action(
+            name=self.env._("Payments"), context={'create': False})
 
     # ------------------------------------------------------------------
     # Credit control (tasks 2.7 / 6.4, rule R6): standard credit limit, made blocking

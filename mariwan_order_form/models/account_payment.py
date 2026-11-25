@@ -25,7 +25,9 @@ class AccountPayment(models.Model):
                 'journal': payment.journal_id.name,
                 'method': payment.payment_method_line_id.name or '',
             }
-            if event == 'registered':
+            if event == 'applied':
+                body = self.env._("Payment %(payment)s of %(amount)s (%(date)s - %(journal)s) applied.", **values)
+            elif event == 'registered':
                 body = self.env._(
                     "Payment %(payment)s registered: %(amount)s on %(date)s - %(journal)s (%(method)s).", **values)
             elif event == 'draft':
@@ -34,6 +36,12 @@ class AccountPayment(models.Model):
                 body = self.env._("Payment %(payment)s of %(amount)s cancelled.", **values)
             for move in moves:
                 move.message_post(body=body)
+                # The sales orders of the invoice show the same line (sudo: an accountant may not edit orders).
+                for order in move.sudo().line_ids.sale_line_ids.order_id:
+                    order.message_post(
+                        body=self.env._("%(event)s Invoice: %(invoice)s.", event=body, invoice=move._get_html_link())
+                        if move.name else body,
+                        author_id=self.env.user.partner_id.id)
 
     def action_cancel(self):
         # Before super: it drops the link to the invoices. Payments already in that state are not logged again.
@@ -64,3 +72,16 @@ class AccountPaymentRegister(models.TransientModel):
         payments = super()._create_payments()
         payments._mariwan_log_on_invoices('registered', self.line_ids.move_id)
         return payments
+
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+
+    def js_assign_outstanding_line(self, line_id):
+        # "Add" on the outstanding credits of an invoice: a payment made before / outside the invoice.
+        payment = self.env['account.move.line'].browse(line_id).move_id.origin_payment_id
+        already = payment in self._get_reconciled_payments()
+        res = super().js_assign_outstanding_line(line_id)
+        if payment and not already and payment in self._get_reconciled_payments():
+            payment._mariwan_log_on_invoices('applied', {payment: self})
+        return res

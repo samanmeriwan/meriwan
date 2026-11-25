@@ -271,6 +271,61 @@ class TestMariwanOrderForm(TransactionCase):
         payment.action_cancel()
         self.assertEqual(len(invoice.message_ids.filtered(lambda m: 'cancelled' in (m.body or ''))), 1)
 
+    def test_payment_on_sales_order(self):
+        form = self._form(self.cash_customer, 2)
+        form.action_check_availability()
+        form.action_create_quotation()
+        form.action_confirm_order()
+        order = form.sale_order_ids
+        self.assertEqual((order.mariwan_payment_status, order.mariwan_payment_count), ('not_paid', 0))
+        invoice = order._create_invoices()
+        invoice.action_post()
+        Register = self.env['account.payment.register'].with_context(
+            active_model='account.move', active_ids=invoice.ids)
+        first = Register.create({'amount': 50.0})._create_payments()
+        order.invalidate_recordset()
+        self.assertEqual((order.mariwan_payment_status, order.mariwan_amount_paid), ('partial', 50.0))
+        # A payment made outside the invoice, then added from the outstanding credits
+        second = self.env['account.payment'].create({
+            'payment_type': 'inbound', 'partner_type': 'customer', 'partner_id': self.cash_customer.id,
+            'amount': order.amount_total - 50.0, 'journal_id': first.journal_id.id,
+            'payment_method_line_id': first.payment_method_line_id.id})
+        second.action_post()
+        line = second.move_id.line_ids.filtered(lambda l: l.account_type == 'asset_receivable')
+        invoice.js_assign_outstanding_line(line.id)
+        order.invalidate_recordset()
+        self.assertEqual((order.mariwan_payment_status, order.mariwan_payment_count), ('paid', 2))
+        self.assertEqual(set(order.action_mariwan_view_payments()['domain'][0][2]), set((first | second).ids))
+        for record in (order, invoice):
+            log = ' '.join(record.message_ids.mapped('body'))
+            self.assertIn(first.name, log)
+            self.assertIn(second.name, log)
+        second.action_cancel()
+        order.invalidate_recordset()
+        self.assertEqual((order.mariwan_payment_status, order.mariwan_payment_count), ('partial', 1))
+        self.assertTrue(order.message_ids.filtered(lambda m: 'cancelled' in (m.body or '')))
+
+    def test_payment_shared_invoice(self):
+        orders = self.env['sale.order']
+        for price in (100.0, 50.0):
+            orders += orders.create({'partner_id': self.cash_customer.id, 'order_line': [Command.create({
+                'product_id': self.product.id, 'product_uom_qty': 1, 'price_unit': price, 'tax_ids': [Command.clear()]})]})
+        orders.action_confirm()
+        invoice = orders._create_invoices()
+        self.assertEqual(len(invoice), 1)
+        invoice.action_post()
+        Register = self.env['account.payment.register'].with_context(
+            active_model='account.move', active_ids=invoice.ids)
+        Register.create({'amount': 75.0})._create_payments()
+        orders.invalidate_recordset()
+        self.assertEqual(orders.mapped('mariwan_amount_paid'), [50.0, 25.0])
+        self.assertEqual(orders.mapped('mariwan_payment_status'), ['partial', 'partial'])
+        self.assertFalse(any(orders.mapped('mariwan_delivery_released')))
+        Register.create({})._create_payments()
+        orders.invalidate_recordset()
+        self.assertEqual(orders.mapped('mariwan_payment_status'), ['paid', 'paid'])
+        self.assertTrue(all(orders.mapped('mariwan_delivery_released')))
+
     def test_credit_limit_block(self):
         form = self._form(self.credit_customer, 6)  # 6 x 230 = 1380 > 1000
         form.action_check_availability()
